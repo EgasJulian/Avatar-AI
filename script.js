@@ -1,7 +1,7 @@
 // API Keys - These should be securely stored and retrieved
 const GROQ_API_KEY = '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';
 const ELEVENLABS_API_KEY = 'sk_c68fe5cea289e6a3b0d9c25d3932bfa168e78c6f7e06be73';
-const OPENROUTER_API_KEY = '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'; //'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'
+const OPENROUTER_API_KEY = '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'; //'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'
 
 // Client data
 const clients = [
@@ -246,14 +246,14 @@ async function generateAIResponse(input) {
                 'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'google/gemini-2.0-flash-lite-preview-02-05:free',
+                model: 'google/gemini-2.5-pro-exp-03-25:free',
                 messages: [
                     { role: 'system', content: cobranzaContexto },
                     ...conversationHistory.map(msg => {
                         const [role, content] = msg.split(': ');
                         return {
-                            role: role === 'Cliente' ? 'user' : 'assistant',
-                            content
+                            role: role.toLowerCase() === 'cliente' ? 'user' : 'assistant',
+                            content: content.trim()
                         };
                     }),
                     { role: 'user', content: input }
