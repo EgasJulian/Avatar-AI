@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Bot</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.min.js"></script>
+    
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Content Container -->
+        <div class="main-container">
+            <!-- Banner Container -->
+            <div class="banner-container">
+                <img src="banner.png" alt="Banner" class="banner-image" />
+            </div>
+
+            <!-- Notification Bubble -->
+            <div class="notification">
+                <span>Recuperación Inteligente de Cartera</span>
+            </div>
+
+            <main class="main-content">
+                <!-- Client Info Section -->
+                <section class="section">
+                    <h2 class="section-title">Información del Cliente</h2>
+                    <div class="client-selector">
+                        <div class="select-container">
+                            <label for="client-select" class="select-label">
+                                Seleccione un Cliente
+                            </label>
+                            <select id="client-select" class="select-input">
+                                <option value="">Seleccione un Cliente ...</option>
+                            </select>
+                            <div id="loading-spinner" class="spinner hidden"></div>
+                        </div>
+                        <div id="error-message" class="error-message hidden"></div>
+                        <div id="client-details" class="client-details hidden"></div>
+                    </div>
+                </section>
+
+                <!-- Interaction Section -->
+                <section class="section">
+                    <h2 class="section-title">Interacción con el Cliente</h2>
+                    <div class="voice-interaction">
+                        <div id="start-interaction" class="center-content">
+                            <button id="start-btn" class="btn btn-primary">
+                                <i class="fas fa-microphone"></i> Conversar con un Agente
+                            </button>
+                        </div>
+
+                        <div id="active-interaction" class="hidden">
+                            <div id="conversation-history" class="conversation-container"></div>
+                            
+                            <div class="button-group">
+                                <button id="stop-btn" class="btn btn-danger">
+                                    <i class="fas fa-times-circle"></i> Detener Interacción
+                                </button>
+                                <button id="record-btn" class="btn btn-success hidden">
+                                    <i class="fas fa-microphone"></i> Grabar Mensaje
+                                </button>
+                                <button id="export-btn" class="btn btn-success">
+                                    <i class="fas fa-download"></i> Exportar Conversación
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <!-- Analysis Panel -->
+                    <div class="analysis-panel">
+                        <div id="analysis-error" class="error-message hidden"></div>
+                        <div id="analysis-results" class="analysis-results hidden"></div>
+                        <div id="cost-analysis" class="cost-analysis hidden"></div>
+                        
+                        <div class="button-group">
+                            <button id="analyze-btn" class="btn btn-info">
+                                <i class="fas fa-chart-bar"></i> Text Mining
+                            </button>
+                            <button id="cost-btn" class="btn btn-success">
+                                <i class="fas fa-text-width"></i> Costos Estimados
+                            </button>
+                            <button id="toggle-video-chat" class="btn btn-primary">
+                                <i class="fas fa-video"></i> <span class="toggle-text">Mostrar Video</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Video Chat Container -->
+        <div id="video-chat-container" class="video-chat-container hidden">
+            <div class="video-chat">
+                <div class="video-header">
+                    <h3>Video Chat</h3>
+                    <button class="close-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <div class="video-wrapper">
+                    <video id="remote-video" class="remote-video" autoplay></video>
+                </div>   
+            </div>
+        </div>
+    </div>
+
+    <a id="download-link" style="display: none;"></a>
+    <script src="script.js"></script>
+</body>
+</html>
