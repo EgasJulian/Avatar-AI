@@ -1,7 +1,7 @@
 // API Keys - These should be securely stored and retrieved
 const GROQ_API_KEY = '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';
 const ELEVENLABS_API_KEY = 'sk_c68fe5cea289e6a3b0d9c25d3932bfa168e78c6f7e06be73';
-const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_KEY = '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'; //'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'
 
 // Client data
 const clients = [
