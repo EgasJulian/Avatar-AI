@@ -20,7 +20,7 @@ const clients = [
 
 //Cnfig Henygen API
 const API_CONFIG = {
-    apiKey: "NDQyYzY0MzY5MWJlNDFlOWJlYWM5ZjgyOGI3ZWFmZTMtMTc0MjkzODg1NA==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
+    apiKey: "YjcxOWNmYmY5Y2Q2NGIwOWEwOWU1MmViNmU3ZjA2YmQtMTc0MzEzMjgyNg==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
     serverUrl: "https://api.heygen.com",
     avatarID:"Judy_Lawyer_Sitting2_public", 
     voiceID:"49e3e441c5874cbab3a9e8086b927e8b"  //"7ffb69e578d4492587493c26ebcabc31" 
