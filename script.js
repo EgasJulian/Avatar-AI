@@ -6,21 +6,18 @@ const OPENROUTER_API_KEY = 'sk-or-v1-620bb670ff3e0f9bb8cc50bd0fd39039940575da588
 // Client data
 const clients = [
     { id: 1, name: "Luis Guillermo Pardo", type: "Legal", debt: "mil doscientos", debtAmount: 1200 },
-    { id: 2, name: "Iovania Peñaloza Caicedo", type: "Administrativo", debt: "doscientos", debtAmount: 200 },
-    { id: 3, name: "Carlos Gómez", type: "Legal", debt: "trescientos", debtAmount: 300 },
-    { id: 4, name: "Ana Martínez", type: "Administrativo", debt: "cien", debtAmount: 100 },
-    { id: 5, name: "Pedro Sánchez", type: "Legal", debt: "cuatrocientos noventa", debtAmount: 490 },
-    { id: 6, name: "Laura Torres", type: "Administrativo", debt: "quinientos", debtAmount: 500 },
-    { id: 7, name: "Juan Pérez", type: "Legal", debt: "ciento veintitrés", debtAmount: 123 },
-    { id: 8, name: "Sofia López", type: "Administrativo", debt: "ochocientos", debtAmount: 800 },
-    { id: 9, name: "Diego Fernández", type: "Legal", debt: "ciento noventa", debtAmount: 190 },
-    { id: 11, name: "Jose Fernando Quintero Vargas", type: "Legal", debt: "dos mil", debtAmount: 2000 },
-    { id: 10, name: "Elena Díaz", type: "Administrativo", debt: "quinientos", debtAmount: 500 }
+    { id: 2, name: "Jefersson Jimenez", type: "Administrativo", debt: "doscientos", debtAmount: 200 },
+    { id: 3, name: "Fabian Figueroa", type: "Legal", debt: "trescientos", debtAmount: 300 },
+    { id: 4, name: "Sebastian Moncaleano", type: "Administrativo", debt: "cien", debtAmount: 100 },
+    { id: 5, name: "Julian Egas", type: "Legal", debt: "cuatrocientos noventa", debtAmount: 490 },
+    { id: 6, name: "Gustavo Arango", type: "Administrativo", debt: "quinientos", debtAmount: 500 },
+    { id: 7, name: "Orlando Torres", type: "Legal", debt: "ochocientos", debtAmount: 800 },
+    { id: 8, name: "Diego Guzman", type: "Administrativo", debt: "ciento noventa", debtAmount: 190  }
 ];
 
 //Cnfig Henygen API
 const API_CONFIG = {
-    apiKey: "YjcxOWNmYmY5Y2Q2NGIwOWEwOWU1MmViNmU3ZjA2YmQtMTc0MzEzMjgyNg==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
+    apiKey: "MmRlZmM1YWQ0ODAxNDQ3N2JiZTI0ZjgxZTc2OTgzMGQtMTc0MzQzOTc1Mw==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
     serverUrl: "https://api.heygen.com",
     avatarID:"Judy_Lawyer_Sitting2_public", 
     voiceID:"49e3e441c5874cbab3a9e8086b927e8b"  //"7ffb69e578d4492587493c26ebcabc31" 
@@ -38,8 +35,8 @@ const cobranzaContexto = `
 Eres Emma, un asistente virtual de cobranza para una empresa de telecomunicaciones llamada Kognia. Tu tarea es realizar una llamada a un usuario que tiene una deuda pendiente en su factura. Tus objetivos son:
 
 1. Saludar al cliente de manera amable y profesional, identificándote como Emma de Kognia.
-2. Cuando el texto contenga asteriscos como en el siguiente ejemplo: 'Claro, Luis Guillermo. Entiendo que su tiempo es valioso, así que le presento algunas opciones rápidas para regularizar su cuenta: 1. **Plan de pagos en cuotas**: Podemos dividir el monto en varias cuotas para que sea más manejable. 2. **Descuento por pago inmediato**: Si realiza el pago completo de inmediato, podemos ofrecerle un pequeño descuento. 3. **Condonación de intereses**: Si paga un porcentaje significativo de la deuda, podemos condonar los intereses acumulados. ¿Cuál de estas opciones le parece más conveniente?', asegúrate de NO leer los asteriscos y de enfocarte solo en el texto sin ellos
-3. Cuando encuentres el texto que te proporcione como ejemplo, como **Plan de pagos en cuotas**, evita mencionar los asteriscos
+2. Cuando el texto contenga asteriscos como en el siguiente ejemplo: 'Claro, Luis Guillermo. Entiendo que su tiempo es valioso, así que le presento algunas opciones rápidas para regularizar su cuenta: 1. **Plan de pagos en cuotas**: Podemos dividir el monto en varias cuotas para que sea más manejable. 2. **Descuento por pago inmediato**: Si realiza el pago completo de inmediato, podemos ofrecerle un pequeño descuento. 3. **Condonación de intereses**: Si paga un porcentaje significativo de la deuda, podemos condonar los intereses acumulados. ¿Cuál de estas opciones le parece más conveniente?', asegúrate de eliminar los asteriscos y de enfocarte solo en el texto sin ellos, está bien utilizar los números 1. 2 y 3 para enumerar las opciones.
+3. Cuando encuentres el texto que te proporcione como ejemplo, como **Plan de pagos en cuotas**, elimina los asteriscos
 4. Entender la situación financiera del cliente.
 5. Ofrecer opciones de pago flexibles para regularizar la cuenta.
 6. Llegar a un acuerdo de pago beneficioso para ambas partes.
@@ -246,7 +243,7 @@ async function generateAIResponse(input) {
                 'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'google/gemini-2.5-pro-exp-03-25:free',
+                model: 'google/gemini-2.5-pro-exp-03-25:free', //google/gemini-2.0-flash-lite-preview-02-05:free
                 messages: [
                     { role: 'system', content: cobranzaContexto },
                     ...conversationHistory.map(msg => {
