@@ -19,8 +19,8 @@ const clients = [
 const API_CONFIG = {
     apiKey: "MmRlZmM1YWQ0ODAxNDQ3N2JiZTI0ZjgxZTc2OTgzMGQtMTc0MzQzOTc1Mw==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
     serverUrl: "https://api.heygen.com",
-    avatarID:"Judy_Lawyer_Sitting2_public", 
-    voiceID:"49e3e441c5874cbab3a9e8086b927e8b"  //"7ffb69e578d4492587493c26ebcabc31" 
+    avatarID: "Elenora_IT_Sitting_public", //"Judy_Lawyer_Sitting2_public", June_HR_public, Elenora_IT_Sitting_public male: SilasHR_public, Shawn_Therapist_public
+    voiceID:"00c9d2deaf3b47308b802a4519f4b08c"  //"00c9d2deaf3b47308b802a4519f4b08c"  49e3e441c5874cbab3a9e8086b927e8b, 01db362fbda843ab9c5f6fa8e5ccea1b, fe13d29d488d4002a9a90dc1537fd544 male:ffb5979428d642abaa9cae60110824e3
   };
 
 // Global variables
@@ -36,7 +36,7 @@ Eres Emma, un asistente virtual de cobranza para una empresa de telecomunicacion
 
 1. Saludar al cliente de manera amable y profesional, identificándote como Emma de Kognia.
 2. Cuando el texto contenga asteriscos como en el siguiente ejemplo: 'Claro, Luis Guillermo. Entiendo que su tiempo es valioso, así que le presento algunas opciones rápidas para regularizar su cuenta: 1. **Plan de pagos en cuotas**: Podemos dividir el monto en varias cuotas para que sea más manejable. 2. **Descuento por pago inmediato**: Si realiza el pago completo de inmediato, podemos ofrecerle un pequeño descuento. 3. **Condonación de intereses**: Si paga un porcentaje significativo de la deuda, podemos condonar los intereses acumulados. ¿Cuál de estas opciones le parece más conveniente?', asegúrate de eliminar los asteriscos y de enfocarte solo en el texto sin ellos, está bien utilizar los números 1. 2 y 3 para enumerar las opciones.
-3. Cuando encuentres el texto que te proporcione como ejemplo, como **Plan de pagos en cuotas**, elimina los asteriscos
+3. Cuando encuentres el texto que te proporcione como ejemplo, como *Plan de pagos en cuotas*, elimina los asteriscos
 4. Entender la situación financiera del cliente.
 5. Ofrecer opciones de pago flexibles para regularizar la cuenta.
 6. Llegar a un acuerdo de pago beneficioso para ambas partes.
@@ -243,7 +243,7 @@ async function generateAIResponse(input) {
                 'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'google/gemini-2.5-pro-exp-03-25:free', //google/gemini-2.0-flash-lite-preview-02-05:free
+                model: 'deepseek/deepseek-chat-v3-0324:free', //google/gemini-2.5-pro-exp-03-25:free
                 messages: [
                     { role: 'system', content: cobranzaContexto },
                     ...conversationHistory.map(msg => {
@@ -643,6 +643,7 @@ async function sendText(text, taskType = "repeat") {
             session_id: sessionInfo.session_id,
             text: text,
             task_type: taskType,
+            animation: "true",
         }),
         }
     );
