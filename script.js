@@ -2,7 +2,7 @@
 const GROQ_API_KEY = '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';
 const ELEVENLABS_API_KEY = 'sk_c68fe5cea289e6a3b0d9c25d3932bfa168e78c6f7e06be73';
 const OPENROUTER_API_KEY = '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'; //'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'
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+//const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
 // Client data
 const clients = [
