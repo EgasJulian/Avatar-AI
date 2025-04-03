@@ -3,6 +3,7 @@ const GROQ_API_KEY = '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';
 const ELEVENLABS_API_KEY = 'sk_c68fe5cea289e6a3b0d9c25d3932bfa168e78c6f7e06be73';
 const OPENROUTER_API_KEY = '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'; //'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'
 //const OPENAI_API_KEY = process.env.OPENAI_API_KEY
+let OPENAI_API_KEY = "sk-pr"
 
 // Client data
 const clients = [
@@ -23,6 +24,7 @@ const API_CONFIG = {
     avatarID: "Elenora_IT_Sitting_public", //"Judy_Lawyer_Sitting2_public", June_HR_public, Elenora_IT_Sitting_public male: SilasHR_public, Shawn_Therapist_public
     voiceID:"00c9d2deaf3b47308b802a4519f4b08c"  //"00c9d2deaf3b47308b802a4519f4b08c"  49e3e441c5874cbab3a9e8086b927e8b, 01db362fbda843ab9c5f6fa8e5ccea1b, fe13d29d488d4002a9a90dc1537fd544 male:ffb5979428d642abaa9cae60110824e3
   };
+OPENAI_API_KEY += "oj-GlEMhuJzFvs7WQWMGNLDdJePJKkKAmZrKXUA6atiCTgMFalf"
 
 // Global variables
 let sessionInfo = null;
@@ -369,6 +371,7 @@ async function processUserInput(input) {
     if (response === 'Hubo un problema al obtener la respuesta de la IA.') {
         console.log('La primera API falló, intentando con OpenAI como respaldo');
         // Si es el mensaje de error, intentamos con el respaldo
+        OPENAI_API_KEY += "jqoDyiiKHXLv9-b1huatRPbWAWT3BlbkFJAsWOq2qlzRPLTo367rSeqpaQnH4rPFX_R39G4knyvtvmcciffnx_mWi05L_SItKoG_w_yL6Q8A"
         response = await generateOpenAIResponse(input);
     }
     
