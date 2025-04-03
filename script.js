@@ -2,6 +2,7 @@
 const GROQ_API_KEY = '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';
 const ELEVENLABS_API_KEY = 'sk_c68fe5cea289e6a3b0d9c25d3932bfa168e78c6f7e06be73';
 const OPENROUTER_API_KEY = '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'; //'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'
+const OPENAI_API_KEY = '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'
 
 // Client data
 const clients = [
@@ -234,7 +235,7 @@ async function processAudio(audioFile) {
 }
 
 // Generate AI response using OpenRouter API
-async function generateAIResponse(input) {
+async function generateAIResponse(input, model) {
     try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
@@ -243,7 +244,44 @@ async function generateAIResponse(input) {
                 'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
             },
             body: JSON.stringify({
-                model: 'deepseek/deepseek-chat-v3-0324:free', //google/gemini-2.5-pro-exp-03-25:free
+                model: model, //google/gemini-2.5-pro-exp-03-25:free
+                messages: [
+                    { role: 'system', content: cobranzaContexto },
+                    ...conversationHistory.map(msg => {
+                        const [role, content] = msg.split(': ');
+                        return {
+                            role: role.toLowerCase() === 'cliente' ? 'user' : 'assistant',
+                            content: content.trim()
+                        };
+                    }),
+                    { role: 'user', content: input }
+                ]
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error('Error al generar respuesta:', error);
+        return 'Hubo un problema al obtener la respuesta de la IA.';
+    }
+}
+
+async function generateOpenAIResponse(input) {
+    try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o',
                 messages: [
                     { role: 'system', content: cobranzaContexto },
                     ...conversationHistory.map(msg => {
@@ -324,9 +362,18 @@ async function playAudioStream(text) {
 
 // Process user input
 async function processUserInput(input) {
-    const response = await generateAIResponse(input);
+    // Primero intentamos con generateAIResponse
+    let response = await generateAIResponse(input);
+    
+    // Verificamos si la respuesta es el mensaje de error
+    if (response === 'Hubo un problema al obtener la respuesta de la IA.') {
+        console.log('La primera API falló, intentando con OpenAI como respaldo');
+        // Si es el mensaje de error, intentamos con el respaldo
+        response = await generateOpenAIResponse(input);
+    }
+    
+    // Añadimos y enviamos la respuesta final (ya sea de la primera API o del respaldo)
     addMessage(response);
-    //await playAudioStream(response);
     sendText(response);    
 }
 
@@ -530,7 +577,7 @@ async function createNewSession() {
             avatar_id: API_CONFIG.avatarID,
             voice: {
                 voice_id: API_CONFIG.voiceID,
-                rate: 1.0,
+                rate: 0.8,
             },
             version: "v2",
             video_encoding: "H264",
