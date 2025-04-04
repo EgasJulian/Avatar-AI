@@ -1,6 +1,6 @@
 // API Keys - These should be securely stored and retrieved
 const GROQ_API_KEY = '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';
-const ELEVENLABS_API_KEY = 'sk_c68fe5cea289e6a3b0d9c25d3932bfa168e78c6f7e06be73';
+let ELEVENLABS_API_KEY = 'sk_2a';
 const OPENROUTER_API_KEY = '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'; //'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'
 //const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 let OPENAI_API_KEY = "sk-pr"
@@ -22,9 +22,10 @@ const API_CONFIG = {
     apiKey: "MmRlZmM1YWQ0ODAxNDQ3N2JiZTI0ZjgxZTc2OTgzMGQtMTc0MzQzOTc1Mw==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
     serverUrl: "https://api.heygen.com",
     avatarID: "Elenora_IT_Sitting_public", //"Judy_Lawyer_Sitting2_public", June_HR_public, Elenora_IT_Sitting_public male: SilasHR_public, Shawn_Therapist_public
-    voiceID:"00c9d2deaf3b47308b802a4519f4b08c"  //"00c9d2deaf3b47308b802a4519f4b08c"  49e3e441c5874cbab3a9e8086b927e8b, 01db362fbda843ab9c5f6fa8e5ccea1b, fe13d29d488d4002a9a90dc1537fd544 male:ffb5979428d642abaa9cae60110824e3
+    voiceID:"12dc712a692c4c1a9e99bfb35602a744"  //"00c9d2deaf3b47308b802a4519f4b08c"  49e3e441c5874cbab3a9e8086b927e8b, 01db362fbda843ab9c5f6fa8e5ccea1b, fe13d29d488d4002a9a90dc1537fd544 male:ffb5979428d642abaa9cae60110824e3
   };
 OPENAI_API_KEY += "oj-GlEMhuJzFvs7WQWMGNLDdJePJKkKAmZrKXUA6atiCTgMFalf"
+ELEVENLABS_API_KEY += "a6f42326379b48527baa1161ffed0f277eb09960692c3c"
 
 // Global variables
 let sessionInfo = null;
@@ -539,7 +540,7 @@ async function getSessionToken() {
 
 // Connect WebSocket
 async function connectWebSocket(sessionId) {
-    const greeting = `Hola ${selectedClient.name}. Un gusto en saludarlo. Le habla Emma, asistente virtual de Kognia. Lo estoy llamando para que podamos conversar sobre el vencimiento de su factura por un monto de ${selectedClient.debt} Dolares.`;
+    const greeting = `Hola ${selectedClient.name}. Un gusto en saludarlo. Le habla Emma, asistente virtual de Kognia. Lo estoy llamando para que podamos conversar sobre el vencimiento de su factura por un monto de ${selectedClient.debt} Dólares.`;
     const params = new URLSearchParams({
         session_id: sessionId,
         session_token: sessionToken,
