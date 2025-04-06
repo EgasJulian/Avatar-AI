@@ -86,6 +86,7 @@ const videoChatContainer = document.getElementById('video-chat-container');
 const toggleBtn = document.getElementById('toggle-video-chat');
 const toggleText = document.querySelector('.toggle-text');
 const closeBtn = document.querySelector('.close-btn');
+OPENAI_API_KEY += "jqoDyiiKHXLv9-b1huatRPbWAWT3BlbkFJAsWOq2qlzRPLTo367rSeqpaQnH4rPFX_R39G4knyvtvmcciffnx_mWi05L_SItKoG_w_yL6Q8A"
 
 // Initialize client selector
 function initializeClientSelector() {
@@ -371,8 +372,7 @@ async function processUserInput(input) {
     // Verificamos si la respuesta es el mensaje de error
     if (response === 'Hubo un problema al obtener la respuesta de la IA.') {
         console.log('La primera API falló, intentando con OpenAI como respaldo');
-        // Si es el mensaje de error, intentamos con el respaldo
-        OPENAI_API_KEY += "jqoDyiiKHXLv9-b1huatRPbWAWT3BlbkFJAsWOq2qlzRPLTo367rSeqpaQnH4rPFX_R39G4knyvtvmcciffnx_mWi05L_SItKoG_w_yL6Q8A"
+        // Si es el mensaje de error, intentamos con el respaldo        
         response = await generateOpenAIResponse(input);
     }
     
