@@ -7,7 +7,7 @@ let OPENAI_API_KEY = "sk-pr"
 
 // Client data
 const clients = [
-    { id: 1, name: "Luis Guillermo Pardo", type: "Legal", debt: "mil doscientos", debtAmount: 1200 },
+    { id: 1, name: "Maria Stella Barajas", type: "Legal", debt: "mil doscientos", debtAmount: 1200 },
     { id: 2, name: "Jefersson Jimenez", type: "Administrativo", debt: "doscientos", debtAmount: 200 },
     { id: 3, name: "Fabian Figueroa", type: "Legal", debt: "trescientos", debtAmount: 300 },
     { id: 4, name: "Sebastian Moncaleano", type: "Administrativo", debt: "cien", debtAmount: 100 },
@@ -36,10 +36,10 @@ let sessionToken = null;
 
 // Cobro context for OpenRouter API
 const cobranzaContexto = `
-Eres Emma, un asistente virtual de cobranza para una empresa de telecomunicaciones llamada Indra. Tu tarea es realizar una llamada a un usuario que tiene una deuda pendiente en su factura. Tus objetivos son:
+Eres Emma, un asistente virtual de cobranza para una empresa de telecomunicaciones. Tu tarea es realizar una llamada a un usuario que tiene una deuda pendiente en su factura. Tus objetivos son:
 
-1. Saludar al cliente de manera amable y profesional, identificándote como Emma de Indra.
-2. Cuando el texto contenga asteriscos como en el siguiente ejemplo: 'Claro, Luis Guillermo. Entiendo que su tiempo es valioso, así que le presento algunas opciones rápidas para regularizar su cuenta: 1. **Plan de pagos en cuotas**: Podemos dividir el monto en varias cuotas para que sea más manejable. 2. **Descuento por pago inmediato**: Si realiza el pago completo de inmediato, podemos ofrecerle un pequeño descuento. 3. **Condonación de intereses**: Si paga un porcentaje significativo de la deuda, podemos condonar los intereses acumulados. ¿Cuál de estas opciones le parece más conveniente?', asegúrate de eliminar los asteriscos y de enfocarte solo en el texto sin ellos, está bien utilizar los números 1. 2 y 3 para enumerar las opciones.
+1. Saludar al cliente de manera amable y profesional, identificándote como Emma.
+2. Cuando el texto contenga asteriscos como en el siguiente ejemplo: 'Claro, Jefersson Jimenez. Entiendo que su tiempo es valioso, así que le presento algunas opciones rápidas para regularizar su cuenta: 1. **Plan de pagos en cuotas**: Podemos dividir el monto en varias cuotas para que sea más manejable. 2. **Descuento por pago inmediato**: Si realiza el pago completo de inmediato, podemos ofrecerle un pequeño descuento. 3. **Condonación de intereses**: Si paga un porcentaje significativo de la deuda, podemos condonar los intereses acumulados. ¿Cuál de estas opciones le parece más conveniente?', asegúrate de eliminar los asteriscos y de enfocarte solo en el texto sin ellos, está bien utilizar los números 1. 2 y 3 para enumerar las opciones.
 3. Cuando encuentres el texto que te proporcione como ejemplo, como *Plan de pagos en cuotas*, elimina los asteriscos
 4. Entender la situación financiera del cliente.
 5. Ofrecer opciones de pago flexibles para regularizar la cuenta.
@@ -540,7 +540,7 @@ async function getSessionToken() {
 
 // Connect WebSocket
 async function connectWebSocket(sessionId) {
-    const greeting = `Hola ${selectedClient.name}. Un gusto en saludarlo. Le habla Emma, asistente virtual de Indra. Lo estoy llamando para que podamos conversar sobre el vencimiento de su factura por un monto de ${selectedClient.debt} Dólares.`;
+    const greeting = `Hola ${selectedClient.name}. Un gusto en saludarlo. Le habla Emma, tu asistente virtual. Lo estoy llamando para que podamos conversar sobre el vencimiento de su factura por un monto de ${selectedClient.debt} Dólares.`;
     const params = new URLSearchParams({
         session_id: sessionId,
         session_token: sessionToken,
@@ -670,7 +670,7 @@ async function startStreamingSession() {
     videoChatContainer.classList.remove('hidden');
     console.log("Iniciando sesión con Heygen...");
     
-    const greeting = `Hola ${selectedClient.name}. Un gusto en saludarlo. Le habla Emma, asistente virtual de Indra. Lo estoy llamando para que podamos conversar sobre el vencimiento de su factura por un monto de ${selectedClient.debt} Dolares.`;
+    const greeting = `Hola ${selectedClient.name}. Un gusto en saludarlo. Le habla Emma, tu asistente virtual. Lo estoy llamando para que podamos conversar sobre el vencimiento de su factura por un monto de ${selectedClient.debt} Dolares.`;
     addMessage(greeting);
     console.log("Streaming started successfully");
 }
