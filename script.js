@@ -19,7 +19,7 @@ const clients = [
 
 //Cnfig Henygen API
 const API_CONFIG = {
-    // quitar key KG, apiKey: "MmRlZmM1YWQ0ODAxNDQ3N2JiZTI0ZjgxZTc2OTgzMGQtMTc0MzQzOTc1Mw==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
+    apiKey: "MmRlZmM1YWQ0ODAxNDQ3N2JiZTI0ZjgxZTc2OTgzMGQtMTc0MzQzOTc1Mw==", //ZDk5MjcxZmFkYzY5NDU5YmFkYWQyMzEwNDZiY2Q0MDUtMTc0MDkyNjg3Nw==
     serverUrl: "https://api.heygen.com",
     avatarID: "Elenora_IT_Sitting_public", //"Judy_Lawyer_Sitting2_public", June_HR_public, Elenora_IT_Sitting_public male: SilasHR_public, Shawn_Therapist_public
     voiceID:"12dc712a692c4c1a9e99bfb35602a744"  //"00c9d2deaf3b47308b802a4519f4b08c"  49e3e441c5874cbab3a9e8086b927e8b, 01db362fbda843ab9c5f6fa8e5ccea1b, fe13d29d488d4002a9a90dc1537fd544 male:ffb5979428d642abaa9cae60110824e3
