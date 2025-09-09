@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+websockets
+requests
+pydantic
+python-multipart
+aiofiles
