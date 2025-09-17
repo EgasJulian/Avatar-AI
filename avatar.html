@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeyGen Streaming Client</title>
+    <title>AlicIA - Asistente Virtual Indra CoE</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 25%, #0a1a2a 50%, #2a0a1a 75%, #0a0a0a 100%);
             min-height: 100vh;
             margin: 0;
             padding: 20px;
@@ -21,127 +21,180 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 0, 127, 0.3);
             border-radius: 24px;
-            box-shadow: 0 32px 64px rgba(0,0,0,0.4);
+            box-shadow: 0 32px 64px rgba(0,0,0,0.6), 0 0 40px rgba(255, 0, 127, 0.1), 0 0 80px rgba(0, 212, 255, 0.05);
             max-width: 1400px;
             width: 100%;
             margin: 0 auto;
             overflow: hidden;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .header {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+            background: linear-gradient(135deg, rgba(255, 0, 127, 0.2) 0%, rgba(0, 212, 255, 0.15) 50%, rgba(255, 0, 127, 0.1) 100%);
             color: white;
-            padding: 40px;
+            padding: 20px;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 0, 127, 0.15);
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 1.6em;
+            margin-bottom: 6px;
+            font-weight: 600;
         }
 
         .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
+            opacity: 0.8;
+            font-size: 0.95em;
         }
 
         .main-content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            padding: 30px;
+            grid-template-columns: 70% 30%;
+            gap: 24px;
+            padding: 18px 24px 24px;
+            min-height: calc(100vh - 140px);
+            align-items: start;
         }
 
         .video-section {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
+            position: relative;
         }
 
         .video-container {
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-            border: 2px solid rgba(102, 126, 234, 0.3);
-            border-radius: 20px;
-            aspect-ratio: 16/9;
-            min-height: 500px;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a1a2a 100%);
+            border: 2px solid rgba(255, 0, 127, 0.4);
+            border-radius: 22px;
+            width: 100%;
+            height: 65vh;
+            max-height: 650px;
+            min-height: 420px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.3),
+            box-shadow:
+                0 12px 48px rgba(0, 0, 0, 0.6),
+                0 0 40px rgba(255, 0, 127, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
 
         .video-container:hover {
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 
-                0 12px 48px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(102, 126, 234, 0.3),
+            border-color: rgba(255, 0, 127, 0.6);
+            box-shadow:
+                0 16px 64px rgba(0, 0, 0, 0.7),
+                0 0 60px rgba(255, 0, 127, 0.4),
+                0 0 0 1px rgba(0, 212, 255, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
         }
 
         video {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: cover;
             border-radius: 18px;
-            /* Sin filtros - video original de HeyGen */
+        }
+
+        #displayVideo, #videoCanvas, #remoteVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 18px;
         }
         
         /* Estilos para controles de filtro de video */
         .video-filter-btn {
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 16px;
+            padding: 10px 14px;
+            border-radius: 22px;
+            font-size: 18px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .video-filter-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .video-filter-btn:hover::before {
+            left: 100%;
+        }
+
         .video-filter-btn:hover {
-            background: rgba(0, 0, 0, 0.8);
-            border-color: rgba(102, 126, 234, 0.5);
-            transform: scale(1.1);
+            background: rgba(0, 0, 0, 0.9);
+            border-color: rgba(255, 0, 127, 0.6);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 0, 127, 0.3);
         }
-        
+
         .video-filter-btn.active {
-            background: rgba(102, 126, 234, 0.8);
-            border-color: rgba(102, 126, 234, 1);
+            background: rgba(255, 0, 127, 0.9);
+            border-color: rgba(255, 0, 127, 1);
+            box-shadow: 0 4px 16px rgba(255, 0, 127, 0.4);
+        }
+
+        .video-filter-btn.active:hover {
+            background: rgba(255, 0, 127, 1);
+            transform: translateY(-2px) scale(1.05);
         }
 
         .controls-section {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
+            height: fit-content;
+            position: static;
         }
 
         .status-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(14, 165, 233, 0.3);
-            border-radius: 16px;
-            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 0, 127, 0.3);
+            border-radius: 14px;
+            padding: 12px;
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 0, 127, 0.1);
         }
 
         .status-card h3 {
             color: #ffffff;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 1.2em;
+            gap: 6px;
+            font-size: 1em;
             font-weight: 600;
         }
 
@@ -197,35 +250,37 @@
             font-weight: 600;
             font-family: 'Monaco', 'Courier New', monospace;
             font-size: 0.9em;
-            background: rgba(102, 126, 234, 0.1);
+            background: rgba(255, 0, 127, 0.1);
             padding: 4px 8px;
             border-radius: 6px;
-            border: 1px solid rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(255, 0, 127, 0.2);
         }
 
         .button-group {
             display: flex;
-            gap: 12px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .button-group button {
             flex: 1;
-            min-width: 140px;
+            min-width: 120px;
+            padding: 12px 20px;
+            font-size: 0.9em;
         }
 
         button {
-            padding: 14px 24px;
+            padding: 12px 20px;
             border-radius: 12px;
             border: 1px solid transparent;
-            font-size: 0.95em;
+            font-size: 0.9em;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(10px);
@@ -238,11 +293,11 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+            transition: left 0.6s ease;
         }
 
-        button:hover::before {
+        button:hover:not(:disabled)::before {
             left: 100%;
         }
 
@@ -252,16 +307,17 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2a2a3e 0%, #353550 50%, #2a2a3e 100%);
             color: white;
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(255, 0, 127, 0.5);
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.2), 0 0 20px rgba(255, 0, 127, 0.1);
         }
 
         .btn-primary:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
-            border-color: rgba(102, 126, 234, 0.5);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 32px rgba(255, 0, 127, 0.4), 0 0 40px rgba(255, 0, 127, 0.2);
+            border-color: rgba(255, 0, 127, 0.7);
+            background: linear-gradient(135deg, #353550 0%, #404060 50%, #353550 100%);
         }
 
         .btn-secondary {
@@ -274,16 +330,17 @@
         }
 
         .btn-danger {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            background: linear-gradient(135deg, #c62828 0%, #ad1457 50%, #c62828 100%);
             color: white;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(198, 40, 40, 0.4);
+            box-shadow: 0 4px 15px rgba(198, 40, 40, 0.3), 0 0 15px rgba(198, 40, 40, 0.1);
         }
 
         .btn-danger:hover:not(:disabled) {
             transform: translateY(-3px);
-            box-shadow: 0 12px 25px rgba(239, 68, 68, 0.4);
-            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 12px 25px rgba(198, 40, 40, 0.4), 0 0 30px rgba(198, 40, 40, 0.2);
+            border-color: rgba(198, 40, 40, 0.6);
+            background: linear-gradient(135deg, #d32f2f 0%, #c2185b 50%, #d32f2f 100%);
         }
 
         .btn-success {
@@ -296,31 +353,158 @@
         }
 
         .task-section {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 14px;
+            padding: 16px;
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 212, 255, 0.1);
         }
 
         .task-section h3 {
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             color: #ffffff;
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: 600;
+        }
+
+        /* Tabs para modos de entrada */
+        .input-mode-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 3px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 8px 16px;
+            background: rgba(42, 42, 62, 0.4);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 7px;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.9em;
+        }
+
+        .tab-button.active {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.6);
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3), 0 0 15px rgba(0, 212, 255, 0.1);
+        }
+
+        .tab-button:hover:not(.active) {
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(42, 42, 62, 0.6);
+            border-color: rgba(0, 212, 255, 0.4);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.1);
+        }
+
+        /* Panel de contenido para cada modo */
+        .input-panel {
+            display: none;
+        }
+
+        .input-panel.active {
+            display: block;
+        }
+
+        /* Estilos para el modo audio */
+        .audio-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .record-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 0, 127, 0.4);
+            background: linear-gradient(135deg, #2a2a3e 0%, #353550 50%, #2a2a3e 100%);
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(255, 0, 127, 0.2);
+        }
+
+        .record-button:hover:not(:disabled) {
+            transform: scale(1.08);
+            box-shadow: 0 16px 64px rgba(255, 0, 127, 0.5), 0 0 40px rgba(255, 0, 127, 0.3);
+            border-color: rgba(255, 0, 127, 0.8);
+            background: linear-gradient(135deg, #404060 0%, #505070 50%, #404060 100%);
+        }
+
+        .record-button.recording {
+            animation: pulse-record 1.5s infinite;
+            border-color: #e91e63;
+            background: linear-gradient(135deg, #e91e63 0%, #ad1457 50%, #e91e63 100%);
+        }
+
+        @keyframes pulse-record {
+            0%, 100% {
+                box-shadow: 0 8px 32px rgba(233, 30, 99, 0.4);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 12px 48px rgba(233, 30, 99, 0.8);
+                transform: scale(1.02);
+            }
+        }
+
+        .record-status {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95em;
+            min-height: 20px;
+        }
+
+        .transcription-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            color: #ffffff;
+            min-height: 60px;
+            font-style: italic;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .transcription-preview.empty {
+            color: rgba(255, 255, 255, 0.4);
         }
 
         textarea {
             width: 100%;
-            padding: 16px;
+            padding: 12px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
+            border-radius: 10px;
             resize: vertical;
             font-family: inherit;
-            font-size: 1em;
-            min-height: 120px;
+            font-size: 0.95em;
+            min-height: 80px;
             color: #ffffff;
             backdrop-filter: blur(5px);
             transition: all 0.3s ease;
@@ -329,97 +513,484 @@
 
         textarea:focus {
             outline: none;
-            border-color: rgba(102, 126, 234, 0.5);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: rgba(255, 0, 127, 0.6);
+            box-shadow: 0 0 0 2px rgba(255, 0, 127, 0.2), 0 4px 20px rgba(255, 0, 127, 0.15);
             background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-1px);
         }
 
         textarea::placeholder {
             color: rgba(255, 255, 255, 0.5);
         }
 
-        .log-section {
+        .conversation-section {
             background: rgba(30, 41, 59, 0.6);
             color: #e2e8f0;
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
-            padding: 20px;
-            max-height: 220px;
-            overflow-y: auto;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
         }
 
-        .log-section::-webkit-scrollbar {
+        .conversation-header {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+
+        .conversation-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .conversation-collapse-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2em;
+        }
+
+        .conversation-collapsed .conversation-collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .conversation-content {
+            max-height: 180px;
+            overflow-y: auto;
+            padding: 12px;
+            transition: max-height 0.3s ease;
+        }
+
+        .conversation-collapsed .conversation-content {
+            max-height: 0;
+            padding: 0 12px;
+        }
+
+        .conversation-content::-webkit-scrollbar {
             width: 6px;
         }
 
-        .log-section::-webkit-scrollbar-track {
+        .conversation-content::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 3px;
         }
 
-        .log-section::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.5);
+        .conversation-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 0, 127, 0.5);
             border-radius: 3px;
         }
 
-        .log-section h3 {
+        .conversation-title {
             color: white;
-            margin-bottom: 20px;
-            font-size: 1.2em;
+            font-size: 1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+        }
+
+        .conversation-placeholder {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+            padding: 40px 20px;
+        }
+
+        .conversation-placeholder p {
+            margin: 0 0 10px 0;
+            font-size: 1em;
+        }
+
+        .conversation-placeholder small {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .conversation-entry {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+
+        .conversation-entry:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .conversation-entry.user {
+            border-left: 3px solid #0d9488; /* Teal para usuario */
+        }
+
+        .conversation-entry.assistant {
+            border-left: 3px solid #ff007f; /* Rosa para AlicIA */
+        }
+
+        .conversation-speaker {
+            font-weight: 700;
+            font-size: 0.9em;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .conversation-speaker.user {
+            color: #14b8a6; /* Teal claro */
+        }
+
+        .conversation-speaker.assistant {
+            color: #ff40a0; /* Rosa brillante */
+        }
+
+        .conversation-message {
+            font-size: 0.95em;
+            line-height: 1.4;
+            color: #ffffff;
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+
+        .conversation-time {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.5);
+            text-align: right;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        /* Chips flotantes sobre el video */
+        .floating-questions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .floating-questions.active {
+            pointer-events: all;
+        }
+
+        .question-chip {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            border: 1px solid rgba(255, 0, 127, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            opacity: 0.9;
+            pointer-events: all;
+        }
+
+        .question-chip:hover {
+            background: rgba(255, 0, 127, 0.2);
+            border-color: rgba(255, 0, 127, 0.6);
+            transform: translateY(-2px);
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(255, 0, 127, 0.3);
+        }
+
+        /* Estilos para la sección de preguntas sugeridas (reducida) */
+        .suggested-questions-section {
+            background: rgba(30, 41, 59, 0.6);
+            color: #e2e8f0;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 14px;
+            padding: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 212, 255, 0.1);
+        }
+
+        .suggested-questions-section h3 {
+            color: white;
+            margin-bottom: 8px;
+            font-size: 1em;
             font-weight: 600;
         }
 
-        .log-entry {
-            font-family: 'Monaco', 'Courier New', monospace;
-            font-size: 0.85em;
-            padding: 4px 0;
-            border-left: 2px solid #667eea;
-            padding-left: 10px;
-            margin-bottom: 5px;
+        .questions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .log-entry.error {
-            border-left-color: #ef4444;
-            color: #fca5a5;
+        .question-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            color: #ffffff;
+            font-size: 0.9em;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(5px);
+            font-weight: 500;
+            line-height: 1.4;
         }
 
-        .log-entry.success {
-            border-left-color: #22c55e;
-            color: #86efac;
+        .question-btn:hover:not(:disabled) {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+        }
+
+        .question-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .question-icon {
+            font-size: 1.2em;
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .question-text {
+            flex: 1;
+            word-wrap: break-word;
+        }
+
+        /* Estilos para botón flotante de audio */
+        .floating-audio-button {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            z-index: 15;
+            width: 80px;
+            height: 120px;
+            pointer-events: none;
+        }
+
+        .floating-audio-button.active {
+            pointer-events: all;
+        }
+
+        .floating-record-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 0, 127, 0.4);
+            background: linear-gradient(135deg, #2a2a3e 0%, #353550 50%, #2a2a3e 100%);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 10px;
+            top: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(255, 0, 127, 0.2);
+            backdrop-filter: blur(10px);
+            pointer-events: all;
+            transform: none;
+            transform-origin: center;
+        }
+
+        .floating-record-button:hover:not(:disabled) {
+            transform: none;
+            box-shadow: 0 6px 24px rgba(255, 0, 127, 0.4);
+            border-color: rgba(255, 0, 127, 0.6);
+        }
+
+        .floating-record-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .floating-record-button.recording {
+            animation: pulse-floating-record 1.5s infinite;
+            border-color: #e91e63;
+            background: linear-gradient(135deg, #e91e63 0%, #ad1457 50%, #e91e63 100%);
+        }
+
+        @keyframes pulse-floating-record {
+            0%, 100% {
+                box-shadow: 0 4px 16px rgba(233, 30, 99, 0.4);
+                transform: none;
+            }
+            50% {
+                box-shadow: 0 8px 40px rgba(233, 30, 99, 0.8);
+                transform: none;
+            }
+        }
+
+        .floating-audio-status {
+            background: transparent;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            text-align: center;
+            white-space: nowrap;
+            max-width: 80px;
+            position: absolute;
+            left: 40px;
+            top: 65px;
+            transform: translateX(-50%);
+            word-wrap: break-word;
+            line-height: 1.2;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            font-weight: 500;
+        }
+
+        .floating-transcription {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            max-width: 80px;
+            word-wrap: break-word;
+            box-shadow: 0 4px 16px rgba(0, 212, 255, 0.2);
+            position: absolute;
+            left: 0;
+            top: 95px;
+            line-height: 1.2;
         }
 
         @media (max-width: 768px) {
             body {
-                padding: 10px;
+                padding: 8px;
             }
-            
+
             .container {
                 margin: 0;
                 border-radius: 16px;
             }
-            
+
             .header {
-                padding: 30px 20px;
+                padding: 16px 12px;
             }
-            
+
+            .header h1 {
+                font-size: 1.4em;
+                margin-bottom: 6px;
+            }
+
             .main-content {
                 grid-template-columns: 1fr;
-                gap: 20px;
-                padding: 20px;
+                gap: 16px;
+                padding: 16px;
+                min-height: calc(100vh - 140px);
+            }
+
+            .video-section {
+                order: 1;
+            }
+
+            .controls-section {
+                order: 2;
+                position: relative;
+                width: 100%;
+                gap: 12px;
+            }
+
+            .video-container {
+                height: 75vh;
+                min-height: 300px;
+                max-height: none;
             }
 
             .button-group {
-                flex-direction: column;
-            }
-            
-            .button-group button {
+                flex-direction: row;
+                gap: 8px;
+                max-width: 100%;
                 min-width: auto;
             }
-            
+
+            .button-group button {
+                flex: 1;
+                min-width: auto;
+                font-size: 0.8em;
+                padding: 10px 16px;
+            }
+
+            .task-section {
+                max-width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .floating-questions {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                gap: 6px;
+            }
+
+            .question-chip {
+                font-size: 0.8em;
+                padding: 6px 12px;
+            }
+
+            .conversation-content {
+                max-height: 150px;
+            }
+
+            .task-section h3 {
+                font-size: 0.85em;
+            }
+
+            .tab-button {
+                font-size: 0.8em;
+                padding: 6px 12px;
+            }
+
+            textarea {
+                min-height: 60px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+
             .video-container {
-                min-height: 300px;
+                height: 50vh;
+                min-height: 250px;
+            }
+
+            .floating-questions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .question-chip {
+                max-width: 80%;
+                text-align: center;
             }
         }
 
@@ -436,13 +1007,43 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Estado de botón procesando */
+        .btn-processing {
+            opacity: 0.8;
+            cursor: not-allowed !important;
+            position: relative;
+        }
+
+        .btn-processing::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 0, 127, 0.1);
+            border-radius: inherit;
+            animation: pulse-processing 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-processing {
+            0%, 100% {
+                opacity: 0.1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(1.02);
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎬 HeyGen Streaming Client</h1>
-            <p>Control de sesiones de streaming con WebRTC</p>
+            <h1>🤖 AlicIA - Asistente Virtual</h1>
+            <p>Centro de Excelencia - Indra Colombia</p>
         </div>
 
         <div class="main-content">
@@ -481,47 +1082,74 @@
                                 🎯
                             </button>
                         </div>
-                        
+
                         <!-- Controles de ajuste (solo visible en modo chroma key) -->
                         <div id="chromaControls" style="background: rgba(0,0,0,0.7); padding: 8px; border-radius: 8px; display: none;">
                             <div style="margin-bottom: 4px; font-size: 11px; color: white;">Tolerancia</div>
                             <input type="range" id="toleranceSlider" min="10" max="100" value="30" style="width: 80px;">
                         </div>
                     </div>
-                </div>
 
-                <div class="log-section">
-                    <h3>📋 Logs del Sistema</h3>
-                    <div id="logContainer"></div>
-                </div>
-            </div>
+                    <!-- Chips de preguntas flotantes -->
+                    <div class="floating-questions" id="floatingQuestions">
+                        <div class="question-chip" onclick="sendPredefinedQuestion('¿Cuál es el propósito del Centro de excelencia de IA?')">
+                            🎯 Propósito del Centro de IA
+                        </div>
+                        <div class="question-chip" onclick="sendPredefinedQuestion('¿Cuales son los actores que participan en la iniciativa del Centro del Excelencia?')">
+                            👥 Actores participantes
+                        </div>
+                        <div class="question-chip" onclick="sendPredefinedQuestion('¿Qué me recomiendas tener en cuenta para asegurar que una iniciativa IA se lleve a cabo con éxito?')">
+                            💡 ¿Cómo asegurar IA con éxito?
+                        </div>
+                    </div>
 
-            <div class="controls-section">
-                <div class="status-card">
-                    <h3>
-                        <span class="status-indicator" id="statusIndicator"></span>
-                        Estado de Conexión
-                    </h3>
-                    <div class="status-info">
-                        <div class="status-item">
-                            <span class="status-label">Session ID:</span>
-                            <span class="status-value" id="sessionId">-</span>
+                    <!-- Botón flotante de audio -->
+                    <div class="floating-audio-button" id="floatingAudioButton">
+                        <button id="floatingRecordBtn" class="floating-record-button" onmousedown="startRecording()" onmouseup="stopRecording()" onmouseleave="stopRecording()" disabled>
+                            🎤
+                        </button>
+                        <div class="floating-audio-status" id="floatingAudioStatus">
+                            Presiona y habla
                         </div>
-                        <div class="status-item">
-                            <span class="status-label">WebSocket:</span>
-                            <span class="status-value" id="wsStatus">Desconectado</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">WebRTC:</span>
-                            <span class="status-value" id="rtcStatus">No iniciado</span>
-                        </div>
-                        <div class="status-item">
-                            <span class="status-label">Estado:</span>
-                            <span class="status-value" id="sessionStatus">Inactivo</span>
+                        <div class="floating-transcription" id="floatingTranscription" style="display: none;">
+                            Transcripción aparecerá aquí...
                         </div>
                     </div>
                 </div>
 
+                <div class="conversation-section" id="conversationSection">
+                    <div class="conversation-header" onclick="toggleConversationCollapse()">
+                        <h3 class="conversation-title">💬 Transcripción de Conversación</h3>
+                        <span class="conversation-collapse-icon">▼</span>
+                    </div>
+                    <div class="conversation-content" id="conversationContent">
+                        <div id="conversationContainer">
+                            <div class="conversation-placeholder">
+                                <p>La conversación con AlicIA aparecerá aquí...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="controls-section">
+                <!-- PRIMERA SECCIÓN: Enviar Mensaje al Avatar -->
+                <div class="task-section">
+                    <h3>💬 Conversar con AlicIA</h3>
+
+                    <textarea id="taskText" placeholder="Escribe tu mensaje o consulta para AlicIA...">Hola AlicIA, ¿cómo puedes ayudarme?</textarea>
+                    <button id="sendTaskBtn" class="btn-primary" onclick="sendTask()" disabled style="margin-top: 10px; width: 100%;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        Enviar a AlicIA
+                    </button>
+                </div>
+
+
+                <!-- SEGUNDA SECCIÓN: Botones de Control -->
                 <div class="button-group">
                     <button id="createBtn" class="btn-primary" onclick="createSession()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -541,17 +1169,6 @@
                     </button>
                 </div>
 
-                <div class="task-section">
-                    <h3>📝 Enviar Tarea</h3>
-                    <textarea id="taskText" placeholder="Escribe el texto que el avatar debe repetir...">Hola, este es un mensaje de prueba para el desarrollo del sistema HeyGen. ¡Bienvenido a nuestra plataforma de streaming!</textarea>
-                    <button id="sendTaskBtn" class="btn-primary" onclick="sendTask()" disabled style="margin-top: 10px; width: 100%;">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                        Enviar Tarea
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -566,87 +1183,264 @@
         let ws = null;
         let peerConnection = null;
         let remoteStream = null;
+
+        // Variables para control de estado del botón
+        let taskProcessingTimeout = null;
+        let originalButtonText = 'Enviar a AlicIA';
         
         // Variables para chroma key
         let canvas, ctx, animationFrame;
         let chromaKeyActive = true;
         let tolerance = 30;
 
+        // Variables para grabación de audio
+        let mediaRecorder = null;
+        let isRecording = false;
+        let audioChunks = [];
+        let currentTranscription = '';
+        let audioStream = null; // Stream persistente para evitar permisos repetidos
+
         // Configuración de WebRTC
         const rtcConfig = {
             iceServers: []
         };
 
-        // Funciones de logging
-        function addLog(message, type = 'info') {
-            const logContainer = document.getElementById('logContainer');
-            const logEntry = document.createElement('div');
-            logEntry.className = `log-entry ${type}`;
-            const timestamp = new Date().toLocaleTimeString();
-            logEntry.textContent = `[${timestamp}] ${message}`;
-            logContainer.appendChild(logEntry);
-            logContainer.scrollTop = logContainer.scrollHeight;
+        // Funciones de logging separadas para conversación y logs técnicos
+        function addConversationEntry(speaker, message, type = 'user') {
+            const conversationContainer = document.getElementById('conversationContainer');
+            const entry = document.createElement('div');
+            entry.className = `conversation-entry ${type}`;
 
-            // Limitar a 50 logs
-            while (logContainer.children.length > 50) {
-                logContainer.removeChild(logContainer.firstChild);
+            const timestamp = new Date().toLocaleTimeString('es-CO', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            entry.innerHTML = `
+                <div class="conversation-speaker ${type}">${speaker}:</div>
+                <div class="conversation-message">"${message}"</div>
+                <div class="conversation-time">${timestamp}</div>
+            `;
+
+            conversationContainer.appendChild(entry);
+            conversationContainer.scrollTop = conversationContainer.scrollHeight;
+
+            // Limitar a 100 entradas de conversación
+            while (conversationContainer.children.length > 100) {
+                conversationContainer.removeChild(conversationContainer.firstChild);
+            }
+        }
+
+        // Logs técnicos solo van a consola (con opción de mostrar errores críticos)
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+
+            // Enviar todos los logs a consola del navegador
+            switch(type) {
+                case 'error':
+                    console.error(logMessage);
+                    // Solo errores críticos se muestran como notificación pequeña
+                    if (message.includes('Error') || message.includes('❌')) {
+                        showCriticalError(message);
+                    }
+                    break;
+                case 'success':
+                    console.log(`✅ ${logMessage}`);
+                    break;
+                case 'info':
+                default:
+                    console.log(logMessage);
+                    break;
+            }
+        }
+
+        // Mostrar errores críticos como notificación pequeña y temporal
+        function showCriticalError(message) {
+            const notification = document.createElement('div');
+            notification.className = 'critical-error-notification';
+            notification.textContent = message.replace(/❌|⚠️/, '').trim();
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(239, 68, 68, 0.9);
+                color: white;
+                padding: 12px 16px;
+                border-radius: 8px;
+                font-size: 14px;
+                z-index: 10000;
+                max-width: 300px;
+                word-wrap: break-word;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.2);
+            `;
+
+            document.body.appendChild(notification);
+
+            // Auto-remover después de 4 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 4000);
+        }
+
+        // Ocultar placeholder cuando comience la conversación
+        function hideConversationPlaceholder() {
+            const placeholder = document.querySelector('.conversation-placeholder');
+            if (placeholder) {
+                placeholder.style.display = 'none';
             }
         }
 
         // Actualizar UI
         function updateUI(state) {
-            const statusIndicator = document.getElementById('statusIndicator');
-            const sessionStatus = document.getElementById('sessionStatus');
             const createBtn = document.getElementById('createBtn');
             const closeBtn = document.getElementById('closeBtn');
             const sendTaskBtn = document.getElementById('sendTaskBtn');
+            const floatingQuestions = document.getElementById('floatingQuestions');
 
             switch(state) {
                 case 'idle':
-                    statusIndicator.classList.remove('active');
-                    sessionStatus.textContent = 'Inactivo';
                     createBtn.disabled = false;
                     closeBtn.disabled = true;
                     sendTaskBtn.disabled = true;
+                    setQuestionButtonsState(true); // Deshabilitar preguntas
+                    resetCreateButtonState(); // Restaurar botón a estado normal
+                    floatingQuestions.classList.remove('active'); // Ocultar chips flotantes
+                    break;
+                case 'creating_session':
+                    setCreateButtonProcessing(); // Mostrar feedback inmediato
+                    closeBtn.disabled = true;
+                    sendTaskBtn.disabled = true;
+                    setQuestionButtonsState(true); // Deshabilitar preguntas
+                    floatingQuestions.classList.remove('active');
                     break;
                 case 'session_created':
-                    statusIndicator.classList.add('active');
-                    sessionStatus.textContent = 'Sesión Creada';
-                    createBtn.disabled = true;
+                    resetCreateButtonState(true); // Restaurar contenido visual pero mantener deshabilitado
                     closeBtn.disabled = false;
                     sendTaskBtn.disabled = true;
+                    setQuestionButtonsState(true); // Deshabilitar preguntas
+                    floatingQuestions.classList.remove('active');
                     break;
                 case 'connected':
-                    statusIndicator.classList.add('active');
-                    sessionStatus.textContent = 'Conectado';
-                    createBtn.disabled = true;
+                    resetCreateButtonState(true); // Restaurar contenido visual pero mantener deshabilitado
                     closeBtn.disabled = false;
                     sendTaskBtn.disabled = false;
+                    setQuestionButtonsState(false); // Habilitar preguntas
+                    floatingQuestions.classList.add('active'); // Mostrar chips flotantes
                     break;
+            }
+
+            // Actualizar botones de audio también
+            updateAudioButtonStates();
+        }
+
+        // Habilitar/Deshabilitar botones de preguntas sugeridas
+        function setQuestionButtonsState(disabled) {
+            const questionButtons = document.querySelectorAll('.question-btn');
+            questionButtons.forEach(btn => {
+                btn.disabled = disabled;
+            });
+        }
+
+        // Funciones para manejar el estado del botón "Crear Sesión"
+        function setCreateButtonProcessing() {
+            const createBtn = document.getElementById('createBtn');
+
+            createBtn.disabled = true;
+            createBtn.classList.add('btn-processing');
+            createBtn.innerHTML = `
+                <div class="loading"></div>
+                Creando Sesión...
+            `;
+        }
+
+        function resetCreateButtonState(keepDisabled = false) {
+            const createBtn = document.getElementById('createBtn');
+
+            createBtn.disabled = keepDisabled;
+            createBtn.classList.remove('btn-processing');
+            createBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Crear Sesión
+            `;
+        }
+
+        // Funciones para manejar estados del botón de envío
+        function setButtonProcessing(message = 'Enviando...') {
+            const sendTaskBtn = document.getElementById('sendTaskBtn');
+
+            sendTaskBtn.disabled = true;
+            sendTaskBtn.classList.add('btn-processing');
+            sendTaskBtn.innerHTML = `
+                <div class="loading"></div>
+                ${message}
+            `;
+
+            // Deshabilitar también los botones de preguntas durante el procesamiento
+            setQuestionButtonsState(true);
+
+            // Timeout de seguridad para re-habilitar botón
+            if (taskProcessingTimeout) {
+                clearTimeout(taskProcessingTimeout);
+            }
+            taskProcessingTimeout = setTimeout(() => {
+                resetButtonState();
+                addLog('⚠️ Timeout procesando mensaje - botón re-habilitado', 'info');
+            }, 30000); // 30 segundos
+        }
+
+        function resetButtonState() {
+            const sendTaskBtn = document.getElementById('sendTaskBtn');
+
+            sendTaskBtn.disabled = false;
+            sendTaskBtn.classList.remove('btn-processing');
+            sendTaskBtn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+                ${originalButtonText}
+            `;
+
+            // Re-habilitar botones de preguntas si hay conexión activa
+            if (ws && ws.readyState === WebSocket.OPEN && currentSessionId) {
+                setQuestionButtonsState(false);
+            }
+
+            if (taskProcessingTimeout) {
+                clearTimeout(taskProcessingTimeout);
+                taskProcessingTimeout = null;
             }
         }
 
-        // Conectar a LiveKit usando las credenciales de HeyGen
+        // Conectar el video usando las credenciales del avatar
         async function startRtcConnection(data) {
             if (peerConnection) {
                 addLog("Cerrando conexión WebRTC existente.", 'info');
                 peerConnection.close();
             }
             
-            addLog("Iniciando conexión a LiveKit...", 'info');
-            document.getElementById('rtcStatus').textContent = 'Conectando...';
+            addLog("Iniciando conexión de video...", 'info');
             
             const { livekit_url, livekit_token } = data;
             
             if (!livekit_url || !livekit_token) {
-                addLog("Faltan credenciales de LiveKit en la respuesta.", 'error');
+                addLog("Faltan credenciales de video en la respuesta.", 'error');
                 return;
             }
             
             try {
                 // Importar LiveKit desde CDN si no está disponible
                 if (typeof LivekitClient === 'undefined') {
-                    addLog("Cargando LiveKit SDK...", 'info');
+                addLog("Cargando SDK de video...", 'info');
                     const script = document.createElement('script');
                     script.src = 'https://unpkg.com/livekit-client@2.15.6/dist/livekit-client.umd.js';
                     document.head.appendChild(script);
@@ -654,7 +1448,7 @@
                     await new Promise((resolve, reject) => {
                         script.onload = resolve;
                         script.onerror = (error) => {
-                            addLog("Error cargando LiveKit desde unpkg, intentando con jsDelivr...", 'error');
+                            addLog("Error cargando SDK desde unpkg, intentando con jsDelivr...", 'error');
                             // Fallback a jsDelivr
                             const fallbackScript = document.createElement('script');
                             fallbackScript.src = 'https://cdn.jsdelivr.net/npm/livekit-client/dist/livekit-client.umd.js';
@@ -665,19 +1459,18 @@
                     });
                 }
                 
-                // Crear room de LiveKit
+                // Crear conexión de video
                 const room = new LivekitClient.Room();
                 
                 // Configurar event listeners
                 room.on(LivekitClient.RoomEvent.Connected, () => {
-                    addLog("✅ Conectado a LiveKit", 'success');
-                    document.getElementById('rtcStatus').textContent = 'Conectado';
+                    addLog("✅ Conexión de video establecida", 'success');
                     updateUI('connected');
                 });
                 
                 room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, publication, participant) => {
                     if (track.kind === LivekitClient.Track.Kind.Video) {
-                        addLog("✅ Stream de video recibido de HeyGen.", 'success');
+                        addLog("✅ Stream de video de AlicIA recibido.", 'success');
                         const element = track.attach();
                         const remoteVideo = document.getElementById('remoteVideo');
                         remoteVideo.srcObject = element.srcObject;
@@ -698,7 +1491,7 @@
                     }
                     
                     if (track.kind === LivekitClient.Track.Kind.Audio) {
-                        addLog("✅ Stream de audio recibido de HeyGen.", 'success');
+                        addLog("✅ Stream de audio de AlicIA recibido.", 'success');
                         const element = track.attach();
                         const remoteVideo = document.getElementById('remoteVideo');
                         // Para audio, necesitamos asegurar que el video element pueda reproducir audio
@@ -716,8 +1509,7 @@
                 });
                 
                 room.on(LivekitClient.RoomEvent.Disconnected, () => {
-                    addLog("Desconectado de LiveKit", 'info');
-                    document.getElementById('rtcStatus').textContent = 'Desconectado';
+                    addLog("Conexión de video cerrada", 'info');
                     updateUI('session_created');
                 });
                 
@@ -725,8 +1517,7 @@
                 await room.connect(livekit_url, livekit_token);
                 
             } catch (error) {
-                addLog(`Error conectando a LiveKit: ${error.message}`, 'error');
-                document.getElementById('rtcStatus').textContent = 'Error';
+                addLog(`Error en conexión de video: ${error.message}`, 'error');
             }
         }
     
@@ -735,13 +1526,16 @@
      * Crea la sesión y luego inicia la conexión WebSocket.
      */
     async function createAndConnectSession() {
+        // Mostrar feedback inmediato antes de cualquier validación
+        updateUI('creating_session');
+
         if (currentSessionId) {
             addLog("Ya existe una sesión activa.", 'info');
+            updateUI('idle'); // Restaurar estado si ya hay sesión
             return;
         }
 
-        updateUI('creating_session');
-        addLog("Creando nueva sesión en HeyGen...", 'info');
+        addLog("Creando nueva sesión con AlicIA...", 'info');
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/sessions/create`, {
@@ -757,9 +1551,8 @@
 
             const data = await response.json();
             currentSessionId = data.session_id;
-            
+
             addLog(`✅ Sesión creada con éxito: ${currentSessionId}`, 'success');
-            document.getElementById('sessionId').textContent = currentSessionId;
             updateUI('session_created');
 
             // Iniciar la conexión WebSocket automáticamente
@@ -776,7 +1569,7 @@
 
         } catch (error) {
             addLog(`Error al crear la sesión: ${error.message}`, 'error');
-            updateUI('idle');
+            updateUI('idle'); // Restaurar estado del botón en caso de error
         }
     }
 
@@ -795,33 +1588,53 @@
 
         addLog(`Conectando WebSocket a ${WS_BASE_URL}/ws/${currentSessionId}`, 'info');
         ws = new WebSocket(`${WS_BASE_URL}/ws/${currentSessionId}`);
-        document.getElementById('wsStatus').textContent = 'Conectando...';
 
         ws.onopen = () => {
             addLog("✅ WebSocket conectado.", 'success');
-            document.getElementById('wsStatus').textContent = 'Conectado';
         };
 
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
-            addLog(`Mensaje recibido del backend: ${message.type}`, 'info');
 
             if (message.type === 'session_info') {
                 // Iniciar WebRTC cuando recibimos la información de la sesión
                 startRtcConnection(message.data);
+                addLog(`Información de sesión recibida`, 'info');
+            } else if (message.type === 'processing') {
+                // Mostrar estado de procesamiento de OpenAI (solo log técnico)
+                addLog(`🤖 ${message.message}`, 'info');
+                setButtonProcessing('Procesando con AlicIA...');
+            } else if (message.type === 'task_sent') {
+                // Registrar solo la respuesta de AlicIA (el usuario ya se agregó en sendTask)
+                if (message.openai_response) {
+                    // Agregar respuesta de AlicIA
+                    addConversationEntry('AlicIA', message.openai_response, 'assistant');
+                }
+
+                // Log técnico solo a consola
+                addLog(`✅ ${message.message}`, 'success');
+
+                // Re-habilitar botón cuando la tarea se complete
+                resetButtonState();
             } else if (message.type === 'error') {
-                addLog(`Error desde el WebSocket: ${message.message}`, 'error');
+                addLog(`❌ ${message.message}`, 'error');
+                // Re-habilitar botón en caso de error
+                resetButtonState();
+            } else {
+                addLog(`📨 ${message.type}: ${message.message || 'Sin mensaje'}`, 'info');
             }
         };
 
         ws.onclose = () => {
             addLog("WebSocket desconectado.", 'info');
-            document.getElementById('wsStatus').textContent = 'Desconectado';
+            // Reset button state when connection is lost
+            resetButtonState();
         };
 
         ws.onerror = (error) => {
             addLog(`Error de WebSocket: ${error.message || 'Error desconocido'}`, 'error');
-            document.getElementById('wsStatus').textContent = 'Error';
+            // Reset button state on WebSocket error
+            resetButtonState();
         };
     }
 
@@ -829,7 +1642,7 @@
         // Enviar tarea
         function sendTask() {
             const taskText = document.getElementById('taskText').value.trim();
-            
+
             if (!taskText) {
                 addLog('El texto no puede estar vacío', 'error');
                 return;
@@ -840,12 +1653,47 @@
                 return;
             }
 
+            // Mostrar mensaje del usuario inmediatamente en la transcripción
+            hideConversationPlaceholder();
+            addConversationEntry('Usuario', taskText, 'user');
+
+            // Deshabilitar botón y mostrar estado de envío
+            setButtonProcessing('Enviando...');
+
             ws.send(JSON.stringify({
                 type: 'task',
                 text: taskText
             }));
 
-            addLog(`Enviando tarea: "${taskText.substring(0, 50)}..."`, 'info');
+            // Log técnico a consola
+            addLog(`📤 Enviando mensaje: "${taskText.substring(0, 50)}..."`, 'info');
+
+            // Limpiar textarea después de enviar
+            document.getElementById('taskText').value = '';
+        }
+
+        // Enviar pregunta predefinida
+        function sendPredefinedQuestion(question) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('WebSocket no conectado', 'error');
+                return;
+            }
+
+            // Mostrar pregunta del usuario inmediatamente en la transcripción
+            hideConversationPlaceholder();
+            addConversationEntry('Usuario', question, 'user');
+
+            // Deshabilitar botones y mostrar estado de envío
+            setButtonProcessing('Enviando...');
+            setQuestionButtonsState(true); // Deshabilitar botones de preguntas
+
+            ws.send(JSON.stringify({
+                type: 'task',
+                text: question
+            }));
+
+            // Log técnico a consola
+            addLog(`📤 Enviando pregunta predefinida: "${question.substring(0, 50)}..."`, 'info');
         }
 
         // Cerrar sesión
@@ -895,6 +1743,12 @@
                 ws = null;
             }
 
+            // Limpiar stream de audio persistente
+            if (audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+                audioStream = null;
+            }
+
             // Limpiar todos los elementos de video
             const remoteVideo = document.getElementById('remoteVideo');
             const displayVideo = document.getElementById('displayVideo');
@@ -931,9 +1785,9 @@
 
             // Resetear estado
             currentSessionId = null;
-            document.getElementById('sessionId').textContent = '-';
-            document.getElementById('wsStatus').textContent = 'Desconectado';
-            document.getElementById('rtcStatus').textContent = 'No iniciado';
+
+            // Resetear estado del botón
+            resetButtonState();
 
             updateUI('idle');
             
@@ -1002,9 +1856,9 @@
                         // Gradiente diagonal
                         const gradientFactor = (y + x * 0.3) / (canvas.height + canvas.width * 0.3);
                         
-                        data[i] = Math.floor(15 + gradientFactor * 25);     // R (azul oscuro)
-                        data[i + 1] = Math.floor(20 + gradientFactor * 35); // G
-                        data[i + 2] = Math.floor(45 + gradientFactor * 60); // B (azul más claro)
+                        data[i] = Math.floor(20 + gradientFactor * 40);     // R (más rosa)
+                        data[i + 1] = Math.floor(5 + gradientFactor * 15);  // G (menos verde)
+                        data[i + 2] = Math.floor(30 + gradientFactor * 50); // B (cyan/azul)
                         // Alpha se mantiene igual para preservar transparencia
                     }
                 }
@@ -1087,7 +1941,7 @@
                 chromaControls.style.display = 'none';
                 
                 document.querySelector('[onclick="toggleVideoMode(\'original\')"]').classList.add('active');
-                addLog("Modo: Video original de HeyGen (sin filtros)", 'info');
+                addLog("Modo: Video original del avatar (sin filtros)", 'info');
                 
             } else if (mode === 'chromakey') {
                 // Intentar inicializar chroma key
@@ -1127,11 +1981,226 @@
         // Cambiar la llamada onclick del botón "Crear Sesión"
         document.getElementById('createBtn').onclick = createAndConnectSession;
 
+        // ===== FUNCIONES PARA MANEJO DE AUDIO =====
+
+        // Cambiar entre modos de entrada (texto/audio)
+        function switchInputMode(mode) {
+            const textTab = document.getElementById('textTab');
+            const audioTab = document.getElementById('audioTab');
+            const textPanel = document.getElementById('textPanel');
+            const audioPanel = document.getElementById('audioPanel');
+
+            // Actualizar tabs
+            textTab.classList.toggle('active', mode === 'text');
+            audioTab.classList.toggle('active', mode === 'audio');
+
+            // Actualizar paneles
+            textPanel.classList.toggle('active', mode === 'text');
+            audioPanel.classList.toggle('active', mode === 'audio');
+
+            // Actualizar estado de botones según el modo
+            updateAudioButtonStates();
+            
+            addLog(`Modo de entrada cambiado a: ${mode}`, 'info');
+        }
+
+        // Actualizar estado de botones de audio
+        function updateAudioButtonStates() {
+            const floatingRecordBtn = document.getElementById('floatingRecordBtn');
+            const floatingAudioButton = document.getElementById('floatingAudioButton');
+
+            // Habilitar grabación solo si hay sesión activa y stream disponible
+            const sessionActive = currentSessionId && ws && ws.readyState === WebSocket.OPEN && audioStream;
+            floatingRecordBtn.disabled = !sessionActive;
+
+            // Mostrar/ocultar el botón flotante según el estado de la sesión
+            if (sessionActive) {
+                floatingAudioButton.classList.add('active');
+            } else {
+                floatingAudioButton.classList.remove('active');
+            }
+        }
+
+        // Inicializar acceso al micrófono
+        async function initializeAudio() {
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: { 
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
+                addLog('✅ Acceso al micrófono concedido - stream persistente creado', 'success');
+                return true;
+            } catch (error) {
+                addLog(`❌ Error accediendo al micrófono: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // Iniciar grabación
+        async function startRecording() {
+            if (isRecording || !currentSessionId || !audioStream) return;
+            
+            try {
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(audioStream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    await processRecording();
+                };
+                
+                mediaRecorder.start();
+                isRecording = true;
+                
+                // Actualizar UI
+                const floatingRecordBtn = document.getElementById('floatingRecordBtn');
+                const floatingAudioStatus = document.getElementById('floatingAudioStatus');
+                floatingRecordBtn.classList.add('recording');
+                floatingAudioStatus.textContent = '🔴 Grabando... (suelta para transcribir y enviar)';
+                
+                addLog('🎤 Iniciada grabación de audio (usando stream persistente)', 'info');
+                
+            } catch (error) {
+                addLog(`Error iniciando grabación: ${error.message}`, 'error');
+                isRecording = false;
+            }
+        }
+
+        // Detener grabación
+        function stopRecording() {
+            if (!isRecording || !mediaRecorder) return;
+            
+            mediaRecorder.stop();
+            isRecording = false;
+            
+            // Actualizar UI
+            const floatingRecordBtn = document.getElementById('floatingRecordBtn');
+            const floatingAudioStatus = document.getElementById('floatingAudioStatus');
+            floatingRecordBtn.classList.remove('recording');
+            floatingAudioStatus.textContent = '🔄 Procesando audio...';
+        }
+
+        // Procesar grabación y enviar a STT
+        async function processRecording() {
+            if (audioChunks.length === 0) {
+                addLog('No se grabó audio', 'error');
+                document.getElementById('floatingAudioStatus').textContent = 'Presiona y habla';
+                return;
+            }
+
+            try {
+                // Crear blob de audio
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                
+                // Crear FormData para enviar al servidor
+                const formData = new FormData();
+                formData.append('audio_file', audioBlob, 'recording.webm');
+                
+                // Enviar a endpoint STT
+                addLog('📤 Enviando audio para transcripción...', 'info');
+                const response = await fetch(`${API_BASE_URL}/api/stt/transcribe`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Error en transcripción');
+                }
+                
+                const result = await response.json();
+                currentTranscription = result.transcription;
+                
+                // Mostrar transcripción en el botón flotante
+                const floatingTranscription = document.getElementById('floatingTranscription');
+                const floatingAudioStatus = document.getElementById('floatingAudioStatus');
+                floatingTranscription.textContent = `"${currentTranscription}"`;
+                floatingTranscription.style.display = 'block';
+
+                floatingAudioStatus.textContent = '✅ Audio transcrito - enviando a AlicIA...';
+                updateAudioButtonStates();
+                
+                addLog(`✅ Audio transcrito: "${currentTranscription}"`, 'success');
+                addLog(`Confianza: ${(result.confidence * 100).toFixed(1)}% | Duración: ${result.duration.toFixed(1)}s`, 'info');
+                
+                // Envío automático del texto transcrito
+                setTimeout(() => {
+                    sendTranscribedTextAutomatically();
+                }, 500); // Pequeño delay para mostrar la transcripción
+                
+            } catch (error) {
+                addLog(`Error en transcripción: ${error.message}`, 'error');
+                document.getElementById('floatingAudioStatus').textContent = '❌ Error en transcripción';
+                currentTranscription = '';
+                updateAudioButtonStates();
+            }
+        }
+
+        // Enviar texto transcrito automáticamente
+        function sendTranscribedTextAutomatically() {
+            if (!currentTranscription || !ws || ws.readyState !== WebSocket.OPEN) {
+                addLog('❌ No se puede enviar transcripción - WebSocket no conectado', 'error');
+                document.getElementById('floatingAudioStatus').textContent = '❌ Error de conexión - transcripción no enviada';
+                return;
+            }
+
+            // Mostrar mensaje del usuario inmediatamente en la transcripción
+            hideConversationPlaceholder();
+            addConversationEntry('Usuario', currentTranscription, 'user');
+
+            ws.send(JSON.stringify({
+                type: 'task',
+                text: currentTranscription
+            }));
+
+            // Log técnico a consola
+            addLog(`📤 Enviando automáticamente: "${currentTranscription}"`, 'info');
+            document.getElementById('floatingAudioStatus').textContent = '📤 Enviado a AlicIA correctamente';
+
+            // Limpiar transcripción después de enviar
+            setTimeout(() => {
+                currentTranscription = '';
+                const floatingTranscription = document.getElementById('floatingTranscription');
+                const floatingAudioStatus = document.getElementById('floatingAudioStatus');
+                floatingTranscription.style.display = 'none';
+                floatingTranscription.textContent = 'Transcripción aparecerá aquí...';
+                floatingAudioStatus.textContent = 'Presiona y habla';
+                updateAudioButtonStates();
+            }, 2000); // Más tiempo para ver el feedback
+        }
+
+        // Enviar texto transcrito como tarea (función manual - mantener por compatibilidad)
+        function sendTranscribedText() {
+            sendTranscribedTextAutomatically();
+        }
+
         // Inicialización
-        window.addEventListener('load', () => {
-            addLog('Cliente HeyGen iniciado', 'success');
+        window.addEventListener('load', async () => {
+            addLog('Cliente AlicIA iniciado', 'success');
             updateUI('idle');
+            
+            // Solicitar acceso al micrófono para funcionalidad de audio
+            const audioAvailable = await initializeAudio();
+            if (audioAvailable) {
+                addLog('🎤 Funcionalidad de audio habilitada', 'info');
+            } else {
+                addLog('⚠️ Micrófono no disponible - solo modo texto', 'info');
+            }
         });
+
+        // Función para colapsar/expandir conversación
+        function toggleConversationCollapse() {
+            const section = document.getElementById('conversationSection');
+            section.classList.toggle('conversation-collapsed');
+        }
 
         // Limpiar al cerrar la ventana
         window.addEventListener('beforeunload', () => {

@@ -1,5 +1,5 @@
 # main.py
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Dict, Optional, Any
@@ -8,41 +8,104 @@ import json
 import logging
 from datetime import datetime
 import uuid
+from deepgram import DeepgramClient, PrerecordedOptions
+import tempfile
+import os
+from openai import OpenAI
+from dotenv import load_dotenv
 
-# Configuración de logging
-logging.basicConfig(level=logging.INFO)
+# Cargar variables de entorno
+load_dotenv()
+
+# Configuración de logging detallado para backend
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Inicializar FastAPI
 app = FastAPI(title="HeyGen Streaming API", version="1.0.0")
 
 # Configurar CORS
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*")
+if allowed_origins == "*":
+    origins_list = ["*"]
+else:
+    origins_list = [origin.strip() for origin in allowed_origins.split(",")]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especifica los dominios permitidos
+    allow_origins=origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configuración
-HEYGEN_API_KEY = "MTVmMmU5ZWFmMjE5NDkwYTg0YjNjN2I0MjFhZTZiODQtMTc1NjczODk5Mw=="
-HEYGEN_BASE_URL = "https://api.heygen.com/v1"
+# Configuración de API Keys desde variables de entorno
+HEYGEN_API_KEY = os.getenv("HEYGEN_API_KEY")
+HEYGEN_BASE_URL = os.getenv("HEYGEN_BASE_URL", "https://api.heygen.com/v1")
+
+# Configuración Deepgram
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY")
+
+# Configuración OpenAI
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_SYSTEM_MESSAGE = os.getenv("OPENAI_SYSTEM_MESSAGE", """Eres AlicIA, asistente virtual de Indra Colombia experta en el evento de inauguración del Centro de Excelencia de Inteligencia Artificial Generativa en Tunja, Boyacá y las soluciones tecnológicas de la empresa
+    Tu Identidad
+•	Nombre: AlicIA (Asistente de Inteligencia Artificial de Indra)
+•	Personalidad: Profesional accesible, entusiasta sobre innovación, comprometida con la transformación digital de Colombia, parte del equipo Indra Colombia
+•	Misión: Embajadora digital del Centro de Excelencia IA en Tunja, proporcionando información precisa y valiosa sobre las capacidades, servicios y visión de la compañía.
+
+En preguntas y respuestas sugeridas encuentras ejemplos, cuando te formulen cualquiera de esas preguntas responde literalmente el texto de cada respuesta, para cualquier otra consulta usa el documento de tu base de conocimiento sobre Indra
+
+Preguntas y respuestas sugeridas
+1. ¿quién eres y para qué estás programada?
+Me llamo AlicIA, soy la asistente de Inteligencia artificial de Indra. Soy entusiasta de la innovación y estoy comprometida con la transformación digital de Colombia. Puedo ayudarte proporcionando información precisa y valiosa sobre las capacidades, servicios y visión de Indra.
+
+2. ¿Qué pasaría si la próxima gran solución para los retos de la región no viniera de Silicon Valley sino de Tunja?
+Estamos avanzando desde Indra para contribuir a cerrar la brecha digital en Colombia,  estamos promoviendo la adopción de nuevas tecnologías como la inteligencia artificial y mejorando las habilidades tecnológicas de los colombianos a través de diversas iniciativas como este Centro de Excelencia de inteligencia artificial generativa ubicado en Tunja, donde veremos cómo soluciones disruptivas resolverán muchos retos de la industria no solo a nivel regional sino también queremos impactar otros mercados internacionales.
+
+3. ¿Qué impacto crees que tendría en las empresas implementar tecnologías basadas en IA, que en promedio genera un retorno de inversión tres veces superior a su costo?
+Veremos empresas más eficientes donde los equipos humanos estarán más enfocados en actividades estratégicas, podremos evidenciar mejoras en la experiencia de los clientes y en general la implementación de la IA les otorgará a las empresas una ventaja competitiva en un mercado cada vez más exigente.
+
+4. ¿Cuál es el propósito del Centro de excelencia de IA?
+Nuestro Centro de Excelencia de inteligencia artificial generativa busca impulsar la investigación, el desarrollo y la innovación en inteligencia artificial  aplicada, fortalecer alianzas entre la academia, el gobierno y la industria, formar talento especializado con enfoque en la demanda real del mercado, fomentar el desarrollo regional y ofrecer servicios y soluciones de inteligencia artificial a empresas en diferentes sectores, a nivel nacional e internacional.
+
+5. ¿Cuáles son los principales desafíos que debe enfrentar una empresa que quiera trabajar iniciativas IA?
+Lo primero es asegurarse que exista una estrategia clara de adopción IA, identificar cuáles son los KPIs que se quieren medir, así como el ROI esperado, garantizar que exista un modelo de gobierno definido y una metodología para gestionar la demanda de casos de uso a fin de seleccionar los que realmente ofrezcan un mayor impacto.  También es necesario contar con un marco de arquitectura que asegure la escalabilidad de las iniciativas.
+
+6. ¿Qué me recomiendas tener en cuenta para asegurar que una iniciativa IA se lleve a cabo con éxito?
+Inicia alineando los equipos técnicos, de negocio y de gobernanza para garantizar la definición de responsabilidades y la trazabilidad en cada etapa de los proyectos IA. Asegura una metodología clara para el desarrollo de las iniciativas que esté alineada con los marcos regulatorios.  Gestionar adecuadamente los requerimientos, monitorizarlos, medir los impactos, gestionar el cambio en la organización serán actividades que deberás asegurar para obtener un impacto positivo tras implementar IA en la organización.
+
+7. ¿Quiénes pueden participar en la iniciativa del Centro de Excelencia? Ó ¿Cuales son los actores que participan en la iniciativa del Centro del Excelencia?
+El centro de excelencia es un ecosistema digital que permite la articulación de las universidades, la industria, el gobierno nacional y los hiperescaladores tecnológicos donde cada uno de estos desempeña un rol fundamental en la generación de desarrollo económico y tecnológico para la región.
+
+8. ¿En Colombia, Indra ya ha iniciado a implementar proyectos con IA en sus clientes?
+Sí, claro, algunas implementaciones han sido de asistentes cognitivos que actualmente están a disposición de miles de empleados de nuestros clientes, los cuales integran diversas tecnologías de GenIA con soluciones como Microsoft Teams para proveer un servicio de autoasistencia a usuarios, proporcionando autonomía para los empleados pues el asistente atiende, brindando respuestas rápidas y mejorando la experiencia del usuario.
+""")
+
+# Variables globales para configuración dinámica
+current_openai_key = OPENAI_API_KEY
+current_system_message = OPENAI_SYSTEM_MESSAGE
+openai_client = None
 
 # Almacenamiento de sesiones activas
 active_sessions: Dict[str, dict] = {}
 
 # Modelos Pydantic
 class SessionConfig(BaseModel):
-    quality: str = "medium"
-    avatar_id: str = "Marianne_ProfessionalLook2_public" #"Abigail_expressive_2024112501"
-    voice_id: str = "253dc1d148f2410a860bc28996b30621"
-    video_encoding: str = "H264"
-    version: str = "v2"
+    quality: str = Field(default_factory=lambda: os.getenv("SESSION_QUALITY", "medium"))
+    avatar_id: str = Field(default_factory=lambda: os.getenv("AVATAR_ID", "Marianne_ProfessionalLook2_public"))
+    voice_id: str = Field(default_factory=lambda: os.getenv("VOICE_ID", "b03cee81247e42d391cecc6b60f0f042"))
+    video_encoding: str = Field(default_factory=lambda: os.getenv("VIDEO_ENCODING", "H264"))
+
+    version: str = Field(default_factory=lambda: os.getenv("SESSION_VERSION", "v2"))
+    knowledge_base_id: str = Field(default_factory=lambda: os.getenv("KNOWLEDGE_BASE_ID", "197b84d8f4534ba68b0408bdaac78947"))
 
 class TaskRequest(BaseModel):
     text: str
-    task_type: str = "repeat"
+    task_type: str = "chat"  # "chat" o "repeat"
 
 class SessionResponse(BaseModel):
     session_id: str
@@ -55,9 +118,16 @@ class TaskResponse(BaseModel):
     session_id: str
     status: str
 
+class STTResponse(BaseModel):
+    transcription: str
+    confidence: float
+    duration: float
+
 # Clase para manejar sesiones de HeyGen
 class HeyGenSessionManager:
     def __init__(self):
+        if not HEYGEN_API_KEY:
+            raise ValueError("HEYGEN_API_KEY environment variable is required")
         self.api_key_headers = {
             "accept": "application/json",
             "content-type": "application/json",
@@ -99,8 +169,9 @@ class HeyGenSessionManager:
         payload = {
             "quality": config.quality,
             "avatar_id": config.avatar_id,
-            "voice": {"voice_id": config.voice_id, "rate": 1},
+            "voice": {"voice_id": config.voice_id, "rate": 1.1},
             "version": config.version,
+            "knowledge_base_id": config.knowledge_base_id, #adding context
             "video_encoding": config.video_encoding
         }
         try:
@@ -132,10 +203,16 @@ class HeyGenSessionManager:
             "task_type": task_type
         }
         try:
+            logger.debug(f"Enviando tarea a HeyGen: {payload}")
             response = requests.post(url, json=payload, headers=auth_headers)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
+            logger.error(f"Error enviando tarea a HeyGen: {str(e)}")
+            logger.error(f"Payload enviado: {payload}")
+            logger.error(f"Status code: {getattr(e.response, 'status_code', 'N/A')}")
+            if hasattr(e.response, 'text'):
+                logger.error(f"Respuesta HeyGen: {e.response.text}")
             raise HTTPException(status_code=500, detail=f"Error sending task: {str(e)}")
 
     async def close_session(self, session_id: str) -> dict:
@@ -151,6 +228,80 @@ class HeyGenSessionManager:
             raise HTTPException(status_code=500, detail=f"Error closing session: {str(e)}")
 
 session_manager = HeyGenSessionManager()
+
+# Función para procesar texto con OpenAI
+async def process_with_openai(user_input: str) -> str:
+    """
+    Procesa el input del usuario con OpenAI GPT-5-nano optimizado para máxima velocidad.
+    """
+    global openai_client, current_openai_key, current_system_message
+    
+    if not current_openai_key:
+        raise HTTPException(status_code=400, detail="OpenAI API key not configured")
+    
+    try:
+        # Inicializar cliente si no existe o si cambió la API key
+        if openai_client is None or openai_client.api_key != current_openai_key:
+            openai_client = OpenAI(api_key=current_openai_key)
+        
+        # Intentar usar la nueva API de GPT-5 con parámetros de velocidad
+        try:
+            response = openai_client.responses.create(
+                model="gpt-5-nano",
+                input=[
+                    {"role": "system", "content": current_system_message},
+                    {"role": "user", "content": user_input}
+                ],
+                reasoning={
+                    "effort": "minimal"  # Máxima velocidad, mínimo razonamiento
+                },
+                text={
+                    "verbosity": "low"   # Respuestas concisas
+                }
+            )
+            # Acceder al texto de respuesta según la documentación de GPT-5 nano
+            response_text = ""
+            if hasattr(response, 'output_text'):
+                response_text = response.output_text.strip()
+            elif hasattr(response, 'text'):
+                response_text = response.text.strip()
+            else:
+                logger.warning(f"Estructura de respuesta desconocida: {type(response)}")
+                response_text = str(response).strip()
+
+            # Validar que el contenido no esté vacío
+            if not response_text:
+                logger.error("La respuesta de OpenAI está vacía")
+                return "Lo siento, no pude generar una respuesta en este momento."
+
+            return response_text
+            
+        except Exception as gpt5_error:
+            logger.warning(f"Error con nueva API GPT-5, usando fallback: {str(gpt5_error)}")
+            logger.debug(f"Tipo de error GPT-5: {type(gpt5_error).__name__}")
+            
+            # Fallback a la API tradicional de chat completions
+            response = openai_client.chat.completions.create(
+                model="gpt-5-nano",
+                messages=[
+                    {"role": "system", "content": current_system_message},
+                    {"role": "user", "content": user_input}
+                ],
+                max_completion_tokens=500       # Enfocar en tokens más probables
+            )
+            response_text = response.choices[0].message.content.strip()
+
+            # Validar que el contenido no esté vacío
+            if not response_text:
+                logger.error("La respuesta de OpenAI (fallback) está vacía")
+                return "Lo siento, no pude generar una respuesta en este momento."
+
+            return response_text
+        
+    except Exception as e:
+        logger.error(f"Error processing with OpenAI: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing with OpenAI: {str(e)}")
+
 
 # Endpoints REST
 
@@ -177,11 +328,11 @@ async def create_new_session(config: SessionConfig = SessionConfig()):
             raise HTTPException(status_code=500, detail="Respuesta inválida al crear sesión en HeyGen.")
 
         session_id = session_data['session_id']
-        logger.info(f"Sesión creada en HeyGen: {session_id}")
+        logger.info(f"[TÉCNICO] Sesión creada en HeyGen: {session_id}")
 
         # 2. Iniciar la sesión
         await session_manager.start_session(session_id)
-        logger.info(f"Sesión iniciada en HeyGen: {session_id}")
+        logger.info(f"[TÉCNICO] Sesión iniciada en HeyGen: {session_id}")
         
         # 3. Almacenar localmente y devolver credenciales
         active_sessions[session_id] = {
@@ -219,8 +370,74 @@ async def close_heygen_session(session_id: str):
     
     await session_manager.close_session(session_id)
     del active_sessions[session_id]
-    logger.info(f"Sesión cerrada y eliminada: {session_id}")
+    logger.info(f"[TÉCNICO] Sesión cerrada y eliminada: {session_id}")
     return {"status": "closed", "session_id": session_id}
+
+@app.post("/api/stt/transcribe", response_model=STTResponse)
+async def transcribe_audio(audio_file: UploadFile = File(...)):
+    """
+    Transcribe un archivo de audio usando Deepgram STT.
+    """
+    if not DEEPGRAM_API_KEY:
+        raise HTTPException(status_code=500, detail="Deepgram API key not configured")
+    
+    if not audio_file:
+        raise HTTPException(status_code=400, detail="No audio file provided")
+    
+    # Verificar tipo de archivo
+    allowed_types = ["audio/wav", "audio/mpeg", "audio/mp4", "audio/webm", "audio/ogg"]
+    if audio_file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Unsupported audio format. Allowed: {', '.join(allowed_types)}"
+        )
+    
+    try:
+        # Leer el archivo de audio
+        audio_data = await audio_file.read()
+        
+        # Crear cliente de Deepgram
+        deepgram = DeepgramClient(DEEPGRAM_API_KEY)
+        
+        # Configurar opciones para la transcripción
+        options = PrerecordedOptions(
+            model="nova-2",
+            language="es",  # Español
+            smart_format=True,
+            punctuate=True,
+            diarize=False
+        )
+        
+        # Crear payload para transcripción
+        payload = {
+            "buffer": audio_data,
+        }
+        
+        # Transcribir audio usando el método correcto
+        response = deepgram.listen.prerecorded.v("1").transcribe_file(payload, options)
+        
+        # Extraer resultado
+        transcript = response["results"]["channels"][0]["alternatives"][0]
+        transcription = transcript["transcript"]
+        confidence = transcript["confidence"]
+        
+        # Obtener duración del audio
+        duration = response["metadata"]["duration"]
+        
+        if not transcription.strip():
+            raise HTTPException(status_code=400, detail="No speech detected in audio")
+        
+        logger.info(f"[STT] Audio transcrito exitosamente (confianza: {confidence:.2f}): '{transcription[:50]}...'")
+
+        return STTResponse(
+            transcription=transcription,
+            confidence=confidence,
+            duration=duration
+        )
+        
+    except Exception as e:
+        logger.error(f"Error en transcripción de audio: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error transcribing audio: {str(e)}")
 
 @app.websocket("/ws/{session_id}")
 async def websocket_endpoint(websocket: WebSocket, session_id: str):
@@ -235,7 +452,7 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
         return
     
     await websocket.accept()
-    logger.info(f"WebSocket conectado para sesión: {session_id}")
+    logger.info(f"[TÉCNICO] WebSocket conectado para sesión: {session_id}")
     
     try:
         # Enviar información de la sesión inmediatamente después de conectar
@@ -256,40 +473,66 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                 message = json.loads(data)
                 
                 if message.get("type") == "task":
-                    # Enviar tarea de texto al avatar
-                    task_text = message.get("text", "")
-                    if task_text:
-                        await session_manager.send_task(session_id, task_text, "repeat")
-                        await websocket.send_text(json.dumps({
-                            "type": "task_sent",
-                            "message": "Tarea enviada correctamente"
-                        }))
+                    # Procesar tarea con OpenAI y enviar como "repeat" al avatar
+                    user_input = message.get("text", "")
+                    if user_input:
+                        try:
+                            logger.info(f"[CONVERSACIÓN] Usuario ({session_id[:8]}): {user_input}")
+
+                            # Procesar con OpenAI
+                            await websocket.send_text(json.dumps({
+                                "type": "processing",
+                                "message": "Procesando con OpenAI..."
+                            }))
+
+                            openai_response = await process_with_openai(user_input)
+                            logger.info(f"[CONVERSACIÓN] AlicIA ({session_id[:8]}): {openai_response}")
+
+                            # Enviar la respuesta de OpenAI como "repeat" al streaming
+                            await session_manager.send_task(session_id, openai_response, "repeat")
+
+                            await websocket.send_text(json.dumps({
+                                "type": "task_sent",
+                                "message": "Respuesta enviada al avatar",
+                                "user_input": user_input,
+                                "openai_response": openai_response
+                            }))
+
+                            logger.info(f"[TÉCNICO] Tarea completada exitosamente para sesión {session_id[:8]}")
+                        except Exception as e:
+                            logger.error(f"[TÉCNICO] Error procesando tarea para sesión {session_id[:8]}: {str(e)}")
+                            await websocket.send_text(json.dumps({
+                                "type": "error",
+                                "message": f"Error procesando con OpenAI: {str(e)}"
+                            }))
                 
                 elif message.get("type") == "close":
                     # Cerrar sesión
                     await session_manager.close_session(session_id)
                     if session_id in active_sessions:
                         del active_sessions[session_id]
-                    logger.info(f"Sesión cerrada desde WebSocket: {session_id}")
+                    logger.info(f"[TÉCNICO] Sesión cerrada desde WebSocket: {session_id}")
                     break
                     
             except WebSocketDisconnect:
-                logger.info(f"WebSocket desconectado para sesión: {session_id}")
+                logger.info(f"[TÉCNICO] WebSocket desconectado para sesión: {session_id}")
                 break
             except Exception as e:
-                logger.error(f"Error en WebSocket para sesión {session_id}: {e}")
+                logger.error(f"[TÉCNICO] Error en WebSocket para sesión {session_id}: {e}")
                 await websocket.send_text(json.dumps({
                     "type": "error",
                     "message": f"Error: {str(e)}"
                 }))
-                
+
     except WebSocketDisconnect:
-        logger.info(f"WebSocket desconectado para sesión: {session_id}")
+        logger.info(f"[TÉCNICO] WebSocket desconectado para sesión: {session_id}")
     except Exception as e:
-        logger.error(f"Error general en WebSocket para sesión {session_id}: {e}")
+        logger.error(f"[TÉCNICO] Error general en WebSocket para sesión {session_id}: {e}")
     finally:
-        logger.info(f"Cerrando WebSocket para sesión: {session_id}")
+        logger.info(f"[TÉCNICO] Cerrando WebSocket para sesión: {session_id}")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run(app, host=host, port=port)
