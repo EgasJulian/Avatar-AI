@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AlicIA - Asistente Virtual Indra CoE</title>
+
+    <!-- Favicon optimizado para AlicIA -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='faviconGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23ff007f'/><stop offset='50%25' style='stop-color:%2300d4ff'/><stop offset='100%25' style='stop-color:%23ff007f'/></linearGradient></defs><circle cx='16' cy='16' r='14' fill='url(%23faviconGrad)' opacity='0.15'/><circle cx='16' cy='16' r='11' fill='none' stroke='url(%23faviconGrad)' stroke-width='2'/><circle cx='16' cy='8' r='2' fill='url(%23faviconGrad)'/><circle cx='8' cy='14' r='1.5' fill='url(%23faviconGrad)'/><circle cx='24' cy='14' r='1.5' fill='url(%23faviconGrad)'/><circle cx='11' cy='22' r='1.5' fill='url(%23faviconGrad)'/><circle cx='21' cy='22' r='1.5' fill='url(%23faviconGrad)'/><circle cx='16' cy='24' r='2' fill='url(%23faviconGrad)'/><text x='16' y='20' text-anchor='middle' fill='url(%23faviconGrad)' font-family='Arial,sans-serif' font-size='8' font-weight='bold'>AI</text></svg>" type="image/svg+xml">
+
+    <!-- Favicons adicionales para compatibilidad -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='appleGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%23ff007f'/><stop offset='50%25' style='stop-color:%2300d4ff'/><stop offset='100%25' style='stop-color:%23ff007f'/></linearGradient></defs><rect width='180' height='180' rx='20' fill='%23000'/><circle cx='90' cy='90' r='70' fill='url(%23appleGrad)' opacity='0.15'/><circle cx='90' cy='90' r='55' fill='none' stroke='url(%23appleGrad)' stroke-width='4'/><circle cx='90' cy='45' r='8' fill='url(%23appleGrad)'/><circle cx='45' cy='70' r='6' fill='url(%23appleGrad)'/><circle cx='135' cy='70' r='6' fill='url(%23appleGrad)'/><circle cx='60' cy='115' r='6' fill='url(%23appleGrad)'/><circle cx='120' cy='115' r='6' fill='url(%23appleGrad)'/><circle cx='90' cy='135' r='8' fill='url(%23appleGrad)'/><text x='90' y='105' text-anchor='middle' fill='url(%23appleGrad)' font-family='Arial,sans-serif' font-size='24' font-weight='bold'>AI</text></svg>">
+
+    <!-- Meta tags para PWA -->
+    <meta name="theme-color" content="#ff007f">
+    <meta name="msapplication-TileColor" content="#ff007f">
     <style>
         * {
             margin: 0;
@@ -44,6 +54,33 @@
             }
         }
 
+        @keyframes logoFloat {
+            from {
+                transform: translateY(0px) rotate(0deg);
+            }
+            to {
+                transform: translateY(-5px) rotate(5deg);
+            }
+        }
+
+        @keyframes logoGlow {
+            0%, 100% {
+                filter: drop-shadow(0 0 10px rgba(255, 0, 127, 0.5));
+            }
+            50% {
+                filter: drop-shadow(0 0 20px rgba(255, 0, 127, 0.8)) drop-shadow(0 0 30px rgba(0, 212, 255, 0.3));
+            }
+        }
+
+        @keyframes textShimmer {
+            0% {
+                background-position: -200% center;
+            }
+            100% {
+                background-position: 200% center;
+            }
+        }
+
         .header {
             background: linear-gradient(135deg, rgba(255, 0, 127, 0.2) 0%, rgba(0, 212, 255, 0.15) 50%, rgba(255, 0, 127, 0.1) 100%);
             color: white;
@@ -52,15 +89,51 @@
             border-bottom: 1px solid rgba(255, 0, 127, 0.15);
         }
 
-        .header h1 {
-            font-size: 1.6em;
-            margin-bottom: 6px;
-            font-weight: 600;
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+
+        .alicia-logo {
+            animation: logoFloat 3s ease-in-out infinite alternate, logoGlow 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 127, 0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .alicia-logo:hover {
+            transform: scale(1.1);
+            animation-duration: 1s;
+        }
+
+        .logo-text h1 {
+            font-size: 1.8em;
+            margin: 0;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff007f 0%, #00d4ff 50%, #ff007f 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: textShimmer 3s linear infinite;
+            text-shadow: 0 0 20px rgba(255, 0, 127, 0.3);
+        }
+
+        .logo-text .subtitle {
+            display: block;
+            font-size: 0.7em;
+            opacity: 0.9;
+            font-weight: 400;
+            margin-top: -2px;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .header p {
             opacity: 0.8;
             font-size: 0.95em;
+            margin: 0;
         }
 
         .main-content {
@@ -894,9 +967,22 @@
                 padding: 16px 12px;
             }
 
-            .header h1 {
+            .logo-container {
+                gap: 10px;
+                flex-direction: column;
+            }
+
+            .alicia-logo {
+                width: 50px;
+                height: 50px;
+            }
+
+            .logo-text h1 {
                 font-size: 1.4em;
-                margin-bottom: 6px;
+            }
+
+            .logo-text .subtitle {
+                font-size: 0.65em;
             }
 
             .main-content {
@@ -974,8 +1060,21 @@
         }
 
         @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.6em;
+            .logo-container {
+                gap: 8px;
+            }
+
+            .alicia-logo {
+                width: 45px;
+                height: 45px;
+            }
+
+            .logo-text h1 {
+                font-size: 1.3em;
+            }
+
+            .logo-text .subtitle {
+                font-size: 0.6em;
             }
 
             .video-container {
@@ -1042,7 +1141,50 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🤖 AlicIA - Asistente Virtual</h1>
+            <div class="logo-container">
+                <svg class="alicia-logo" width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ff007f;stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:#00d4ff;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff007f;stop-opacity:1" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+
+                    <!-- Brain/AI Core -->
+                    <circle cx="30" cy="30" r="25" fill="url(#logoGradient)" opacity="0.1" filter="url(#glow)"/>
+                    <circle cx="30" cy="30" r="20" fill="none" stroke="url(#logoGradient)" stroke-width="2" opacity="0.6"/>
+
+                    <!-- Neural Network Nodes -->
+                    <circle cx="30" cy="15" r="3" fill="url(#logoGradient)" filter="url(#glow)"/>
+                    <circle cx="15" cy="25" r="2.5" fill="url(#logoGradient)" filter="url(#glow)"/>
+                    <circle cx="45" cy="25" r="2.5" fill="url(#logoGradient)" filter="url(#glow)"/>
+                    <circle cx="20" cy="40" r="2.5" fill="url(#logoGradient)" filter="url(#glow)"/>
+                    <circle cx="40" cy="40" r="2.5" fill="url(#logoGradient)" filter="url(#glow)"/>
+                    <circle cx="30" cy="45" r="3" fill="url(#logoGradient)" filter="url(#glow)"/>
+
+                    <!-- Neural Connections -->
+                    <path d="M30 18 L27 22 L30 26 L33 22 Z" fill="url(#logoGradient)" opacity="0.8"/>
+                    <path d="M18 25 L22 28 L26 25 L22 22 Z" fill="url(#logoGradient)" opacity="0.6"/>
+                    <path d="M42 25 L38 28 L34 25 L38 22 Z" fill="url(#logoGradient)" opacity="0.6"/>
+                    <path d="M23 37 L27 34 L30 38 L26 41 Z" fill="url(#logoGradient)" opacity="0.6"/>
+                    <path d="M37 37 L33 34 L30 38 L34 41 Z" fill="url(#logoGradient)" opacity="0.6"/>
+
+                    <!-- Central AI Symbol -->
+                    <text x="30" y="35" text-anchor="middle" fill="url(#logoGradient)" font-family="Arial, sans-serif" font-size="12" font-weight="bold" filter="url(#glow)">AI</text>
+                </svg>
+                <div class="logo-text">
+                    <h1>AlicIA</h1>
+                    <span class="subtitle">Asistente Virtual</span>
+                </div>
+            </div>
             <p>Centro de Excelencia - Indra Colombia</p>
         </div>
 
@@ -2064,7 +2206,7 @@
                 const floatingRecordBtn = document.getElementById('floatingRecordBtn');
                 const floatingAudioStatus = document.getElementById('floatingAudioStatus');
                 floatingRecordBtn.classList.add('recording');
-                floatingAudioStatus.textContent = '🔴 Grabando... (suelta para transcribir y enviar)';
+                floatingAudioStatus.textContent = '🔴 Grabando...';
                 
                 addLog('🎤 Iniciada grabación de audio (usando stream persistente)', 'info');
                 
@@ -2085,7 +2227,7 @@
             const floatingRecordBtn = document.getElementById('floatingRecordBtn');
             const floatingAudioStatus = document.getElementById('floatingAudioStatus');
             floatingRecordBtn.classList.remove('recording');
-            floatingAudioStatus.textContent = '🔄 Procesando audio...';
+            floatingAudioStatus.textContent = '🔄 Procesando...';
         }
 
         // Procesar grabación y enviar a STT
@@ -2125,7 +2267,7 @@
                 floatingTranscription.textContent = `"${currentTranscription}"`;
                 floatingTranscription.style.display = 'block';
 
-                floatingAudioStatus.textContent = '✅ Audio transcrito - enviando a AlicIA...';
+                floatingAudioStatus.textContent = '✅ Transcrito';
                 updateAudioButtonStates();
                 
                 addLog(`✅ Audio transcrito: "${currentTranscription}"`, 'success');
@@ -2138,7 +2280,7 @@
                 
             } catch (error) {
                 addLog(`Error en transcripción: ${error.message}`, 'error');
-                document.getElementById('floatingAudioStatus').textContent = '❌ Error en transcripción';
+                document.getElementById('floatingAudioStatus').textContent = '❌ Error audio';
                 currentTranscription = '';
                 updateAudioButtonStates();
             }
@@ -2148,7 +2290,7 @@
         function sendTranscribedTextAutomatically() {
             if (!currentTranscription || !ws || ws.readyState !== WebSocket.OPEN) {
                 addLog('❌ No se puede enviar transcripción - WebSocket no conectado', 'error');
-                document.getElementById('floatingAudioStatus').textContent = '❌ Error de conexión - transcripción no enviada';
+                document.getElementById('floatingAudioStatus').textContent = '❌ Sin conexión';
                 return;
             }
 
@@ -2163,7 +2305,7 @@
 
             // Log técnico a consola
             addLog(`📤 Enviando automáticamente: "${currentTranscription}"`, 'info');
-            document.getElementById('floatingAudioStatus').textContent = '📤 Enviado a AlicIA correctamente';
+            document.getElementById('floatingAudioStatus').textContent = '📤 Enviado';
 
             // Limpiar transcripción después de enviar
             setTimeout(() => {
