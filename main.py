@@ -535,4 +535,5 @@ if __name__ == "__main__":
     import uvicorn
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8000"))
+    print(f"Starting server on {host}:{port}")
     uvicorn.run(app, host=host, port=port)

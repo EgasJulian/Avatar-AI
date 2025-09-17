@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.13"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "main.py"
+    }
+  ],
+  "excludeFiles": [
+    "**/*.pyc",
+    "**/__pycache__/**",
+    ".env",
+    ".env.example",
+    ".git/**",
+    ".venv/**",
+    "*.md",
+    ".gitignore"
+  ]
+}
