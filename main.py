@@ -1,6 +1,8 @@
 # main.py
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Dict, Optional, Any
 import requests
@@ -307,6 +309,11 @@ async def process_with_openai(user_input: str) -> str:
 
 @app.get("/")
 async def root():
+    """Sirve la aplicación principal"""
+    return FileResponse("avatar.html")
+
+@app.get("/health")
+async def health():
     """Endpoint de salud"""
     return {
         "status": "healthy",
