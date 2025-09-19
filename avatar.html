@@ -1437,28 +1437,28 @@
                     sendTaskBtn.disabled = true;
                     setQuestionButtonsState(true); // Deshabilitar preguntas
                     resetCreateButtonState(); // Restaurar botón a estado normal
-                    floatingQuestions.classList.remove('active'); // Ocultar chips flotantes
+                    if (floatingQuestions) floatingQuestions.classList.remove('active'); // Ocultar chips flotantes
                     break;
                 case 'creating_session':
                     setCreateButtonProcessing(); // Mostrar feedback inmediato
                     closeBtn.disabled = true;
                     sendTaskBtn.disabled = true;
                     setQuestionButtonsState(true); // Deshabilitar preguntas
-                    floatingQuestions.classList.remove('active');
+                    if (floatingQuestions) floatingQuestions.classList.remove('active');
                     break;
                 case 'session_created':
                     resetCreateButtonState(true); // Restaurar contenido visual pero mantener deshabilitado
                     closeBtn.disabled = false;
                     sendTaskBtn.disabled = true;
                     setQuestionButtonsState(true); // Deshabilitar preguntas
-                    floatingQuestions.classList.remove('active');
+                    if (floatingQuestions) floatingQuestions.classList.remove('active');
                     break;
                 case 'connected':
                     resetCreateButtonState(true); // Restaurar contenido visual pero mantener deshabilitado
                     closeBtn.disabled = false;
                     sendTaskBtn.disabled = false;
                     setQuestionButtonsState(false); // Habilitar preguntas
-                    floatingQuestions.classList.add('active'); // Mostrar chips flotantes
+                    if (floatingQuestions) floatingQuestions.classList.add('active'); // Mostrar chips flotantes
                     break;
             }
 
