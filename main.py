@@ -342,13 +342,18 @@ async def create_new_session(config: SessionConfig = SessionConfig()):
         logger.info(f"[TÉCNICO] Sesión iniciada en HeyGen: {session_id}")
         
         # 3. Almacenar localmente y devolver credenciales
+        session_created_time = datetime.now()
         active_sessions[session_id] = {
             "session_id": session_id,
             "status": "active",
-            "created_at": datetime.now().isoformat(),
+            "created_at": session_created_time.isoformat(),
             "livekit_url": session_data.get("url"),
             "livekit_token": session_data.get("access_token")
         }
+
+        logger.info(f"[DEBUG] Session {session_id} stored in active_sessions at {session_created_time.isoformat()}")
+        logger.info(f"[DEBUG] Total active sessions after storage: {len(active_sessions)}")
+        logger.info(f"[DEBUG] All session IDs after storage: {list(active_sessions.keys())}")
         
         return SessionResponse(
             session_id=session_id,
@@ -453,19 +458,60 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     El frontend se conecta aquí para recibir la información de la sesión
     y establecer la conexión WebRTC directamente con HeyGen.
     """
-    # Logging detallado para debug
-    logger.info(f"[DEBUG] WebSocket connection attempt for session: {session_id}")
+    import asyncio
+
+    # Logging detallado para debug con timestamp
+    websocket_attempt_time = datetime.now()
+    logger.info(f"[DEBUG] WebSocket connection attempt for session: {session_id} at {websocket_attempt_time.isoformat()}")
     logger.info(f"[DEBUG] Active sessions count: {len(active_sessions)}")
     logger.info(f"[DEBUG] Active session IDs: {list(active_sessions.keys())}")
 
-    # Verificar que la sesión existe
-    if session_id not in active_sessions:
-        logger.error(f"[DEBUG] Session {session_id} NOT FOUND in active_sessions")
-        logger.error(f"[DEBUG] Available sessions: {list(active_sessions.keys())}")
-        await websocket.close(code=1008, reason="Session not found")
-        return
+    # Si la sesión existe, mostrar el timing de creación vs conexión
+    if session_id in active_sessions:
+        session_data = active_sessions[session_id]
+        created_at_str = session_data.get("created_at", "unknown")
+        logger.info(f"[DEBUG] Session {session_id} was created at: {created_at_str}")
+        logger.info(f"[DEBUG] WebSocket connecting at: {websocket_attempt_time.isoformat()}")
+    else:
+        logger.info(f"[DEBUG] Session {session_id} not found in active_sessions during initial check")
 
-    logger.info(f"[DEBUG] Session {session_id} FOUND in active_sessions")
+    # Implementar mecanismo de reintento para manejar condición de carrera
+    max_retries = 5
+    retry_delay = 0.5  # 500ms inicial
+
+    session_found = False
+    session_valid = False
+
+    for attempt in range(max_retries):
+        if session_id in active_sessions:
+            # Verificar que la sesión esté en estado válido
+            session_data = active_sessions[session_id]
+            session_status = session_data.get("status", "unknown")
+            livekit_url = session_data.get("livekit_url")
+            livekit_token = session_data.get("livekit_token")
+
+            if session_status == "active" and livekit_url and livekit_token:
+                session_found = True
+                session_valid = True
+                logger.info(f"[DEBUG] Session {session_id} FOUND and VALID after {attempt + 1} attempts")
+                logger.info(f"[DEBUG] Session status: {session_status}, has credentials: {bool(livekit_url and livekit_token)}")
+                break
+            else:
+                logger.warning(f"[DEBUG] Session {session_id} found but INVALID - status: {session_status}, has_credentials: {bool(livekit_url and livekit_token)}")
+
+        if attempt < max_retries - 1:  # No hacer delay en el último intento
+            logger.info(f"[DEBUG] Session {session_id} not found or invalid, attempt {attempt + 1}/{max_retries}, retrying in {retry_delay}s...")
+            await asyncio.sleep(retry_delay)
+            retry_delay *= 1.5  # Incremento exponencial del delay
+        else:
+            logger.error(f"[DEBUG] Session {session_id} NOT FOUND OR INVALID after {max_retries} attempts")
+            logger.error(f"[DEBUG] Available sessions: {list(active_sessions.keys())}")
+
+    if not session_found or not session_valid:
+        error_reason = "Session not found" if not session_found else "Session invalid"
+        logger.error(f"[DEBUG] WebSocket connection rejected: {error_reason}")
+        await websocket.close(code=1008, reason=f"{error_reason} after retries")
+        return
     
     await websocket.accept()
     logger.info(f"[TÉCNICO] WebSocket conectado para sesión: {session_id}")
