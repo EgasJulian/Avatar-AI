@@ -1681,8 +1681,11 @@
             addLog(`✅ Sesión creada con éxito: ${currentSessionId}`, 'success');
             updateUI('session_created');
 
-            // Iniciar la conexión WebSocket automáticamente
-            connectWebSocket();
+            // Pequeño delay antes de conectar WebSocket para asegurar que la sesión esté almacenada
+            addLog('Esperando que la sesión se almacene en el backend...', 'info');
+            setTimeout(() => {
+                connectWebSocket();
+            }, 1000); // 1 segundo de delay
             
             // Agregar event listener para click en video para unmute (por si acaso)
             const remoteVideo = document.getElementById('remoteVideo');
@@ -1700,9 +1703,9 @@
     }
 
     /**
-     * Inicia la conexión WebSocket.
+     * Inicia la conexión WebSocket con retry automático.
      */
-    function connectWebSocket() {
+    function connectWebSocket(retryCount = 0, maxRetries = 3) {
         if (!currentSessionId) {
             addLog("No hay ID de sesión para conectar el WebSocket.", 'error');
             return;
@@ -1712,7 +1715,8 @@
             return;
         }
 
-        addLog(`Conectando WebSocket a ${WS_BASE_URL}/ws/${currentSessionId}`, 'info');
+        const attempt = retryCount + 1;
+        addLog(`Conectando WebSocket a ${WS_BASE_URL}/ws/${currentSessionId} (intento ${attempt}/${maxRetries + 1})`, 'info');
         ws = new WebSocket(`${WS_BASE_URL}/ws/${currentSessionId}`);
 
         ws.onopen = () => {
@@ -1751,16 +1755,28 @@
             }
         };
 
-        ws.onclose = () => {
-            addLog("WebSocket desconectado.", 'info');
-            // Reset button state when connection is lost
-            resetButtonState();
+        ws.onclose = (event) => {
+            addLog(`WebSocket desconectado. Código: ${event.code}, Razón: ${event.reason}`, 'info');
+
+            // Si fue cerrado con error 403/1008 y tenemos retries disponibles
+            if ((event.code === 1008 || event.code === 403) && retryCount < maxRetries) {
+                const retryDelay = Math.pow(2, retryCount) * 1000; // Backoff exponencial: 1s, 2s, 4s
+                addLog(`Reintentando conexión WebSocket en ${retryDelay/1000} segundos...`, 'info');
+
+                setTimeout(() => {
+                    connectWebSocket(retryCount + 1, maxRetries);
+                }, retryDelay);
+            } else {
+                // Reset button state when connection is lost definitively
+                resetButtonState();
+                if (retryCount >= maxRetries) {
+                    addLog(`❌ Falló conexión WebSocket después de ${maxRetries + 1} intentos`, 'error');
+                }
+            }
         };
 
         ws.onerror = (error) => {
             addLog(`Error de WebSocket: ${error.message || 'Error desconocido'}`, 'error');
-            // Reset button state on WebSocket error
-            resetButtonState();
         };
     }
 

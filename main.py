@@ -453,10 +453,19 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
     El frontend se conecta aquí para recibir la información de la sesión
     y establecer la conexión WebRTC directamente con HeyGen.
     """
+    # Logging detallado para debug
+    logger.info(f"[DEBUG] WebSocket connection attempt for session: {session_id}")
+    logger.info(f"[DEBUG] Active sessions count: {len(active_sessions)}")
+    logger.info(f"[DEBUG] Active session IDs: {list(active_sessions.keys())}")
+
     # Verificar que la sesión existe
     if session_id not in active_sessions:
+        logger.error(f"[DEBUG] Session {session_id} NOT FOUND in active_sessions")
+        logger.error(f"[DEBUG] Available sessions: {list(active_sessions.keys())}")
         await websocket.close(code=1008, reason="Session not found")
         return
+
+    logger.info(f"[DEBUG] Session {session_id} FOUND in active_sessions")
     
     await websocket.accept()
     logger.info(f"[TÉCNICO] WebSocket conectado para sesión: {session_id}")
