@@ -1214,25 +1214,9 @@
                         <p style="margin-top: 10px;">Video Stream</p>
                     </div>
                     
-                    <!-- Controles de chroma key -->
-                    <div id="videoControls" style="position: absolute; top: 10px; right: 10px; display: none; gap: 8px; flex-direction: column;">
-                        <div style="display: flex; gap: 8px;">
-                            <button onclick="toggleVideoMode('original')" class="video-filter-btn" title="Video Original">
-                                🎬
-                            </button>
-                            <button onclick="toggleVideoMode('chromakey')" class="video-filter-btn active" title="Chroma Key">
-                                🎯
-                            </button>
-                        </div>
 
-                        <!-- Controles de ajuste (solo visible en modo chroma key) -->
-                        <div id="chromaControls" style="background: rgba(0,0,0,0.7); padding: 8px; border-radius: 8px; display: none;">
-                            <div style="margin-bottom: 4px; font-size: 11px; color: white;">Tolerancia</div>
-                            <input type="range" id="toleranceSlider" min="10" max="100" value="30" style="width: 80px;">
-                        </div>
-                    </div>
-
-                    <!-- Chips de preguntas flotantes -->
+                    <!-- Chips de preguntas flotantes - COMENTADO TEMPORALMENTE PARA PRUEBAS -->
+                    <!--
                     <div class="floating-questions" id="floatingQuestions">
                         <div class="question-chip" onclick="sendPredefinedQuestion('¿Cuál es el propósito del Centro de excelencia de IA?')">
                             🎯 Propósito del Centro de IA
@@ -1244,6 +1228,7 @@
                             💡 ¿Cómo asegurar IA con éxito?
                         </div>
                     </div>
+                    -->
 
                     <!-- Botón flotante de audio -->
                     <div class="floating-audio-button" id="floatingAudioButton">
@@ -1618,7 +1603,6 @@
                         const remoteVideo = document.getElementById('remoteVideo');
                         remoteVideo.srcObject = element.srcObject;
                         document.getElementById('videoPlaceholder').style.display = 'none';
-                        document.getElementById('videoControls').style.display = 'flex';
                         
                         // Asegurar que el audio se reproduzca
                         remoteVideo.muted = false;
@@ -1628,8 +1612,7 @@
                         
                         // Activar chroma key por defecto
                         setTimeout(() => {
-                            toggleVideoMode('chromakey');
-                            addLog("Activando modo chroma key por defecto.", 'info');
+                            activateChromaKey();
                         }, 1500);
                     }
                     
@@ -1923,7 +1906,6 @@
             remoteVideo.style.display = 'none';
             displayVideo.style.display = 'none';
             canvas.style.display = 'none';
-            document.getElementById('videoControls').style.display = 'none';
             document.getElementById('videoPlaceholder').style.display = 'block';
 
             // Resetear estado
@@ -2012,7 +1994,15 @@
             } catch (error) {
                 addLog(`Error en procesamiento chroma key: ${error.message}`, 'error');
                 // Fallback: mostrar video original
-                toggleVideoMode('original');
+                chromaKeyActive = false;
+                if (animationFrame) cancelAnimationFrame(animationFrame);
+                const canvas = document.getElementById('videoCanvas');
+                const displayVideo = document.getElementById('displayVideo');
+                const remoteVideo = document.getElementById('remoteVideo');
+                canvas.style.display = 'none';
+                displayVideo.style.display = 'block';
+                displayVideo.srcObject = remoteVideo.srcObject;
+                addLog("Usando video original debido a error en chroma key", 'info');
                 return;
             }
             
@@ -2025,19 +2015,19 @@
         // Inicializar sistema de chroma key con detección de soporte
         function initChromaKey() {
             canvas = document.getElementById('videoCanvas');
-            
+
             // Verificar soporte de Canvas
             if (!canvas || !canvas.getContext) {
                 addLog("Canvas no soportado. Usando video original.", 'error');
                 return false;
             }
-            
+
             ctx = canvas.getContext('2d');
             if (!ctx) {
                 addLog("Context 2D no disponible. Usando video original.", 'error');
                 return false;
             }
-            
+
             // Verificar soporte de ImageData
             try {
                 const testData = ctx.createImageData(1, 1);
@@ -2046,73 +2036,37 @@
                 addLog("ImageData no soportado. Usando video original.", 'error');
                 return false;
             }
-            
-            // Actualizar tolerancia desde slider
-            const slider = document.getElementById('toleranceSlider');
-            if (slider) {
-                slider.addEventListener('input', (e) => {
-                    tolerance = parseInt(e.target.value);
-                    addLog(`Tolerancia chroma key: ${tolerance}`, 'info');
-                });
-                tolerance = parseInt(slider.value);
-            }
-            
+
+            // Establecer tolerancia fija optimizada
+            tolerance = 30;
+
             addLog("✅ Sistema de chroma key inicializado correctamente", 'success');
             return true;
         }
         
-        // Cambiar modo de video
-        function toggleVideoMode(mode) {
-            const buttons = document.querySelectorAll('.video-filter-btn');
+        // Activar chroma key automáticamente
+        function activateChromaKey() {
             const canvas = document.getElementById('videoCanvas');
             const displayVideo = document.getElementById('displayVideo');
-            const remoteVideo = document.getElementById('remoteVideo');
-            const chromaControls = document.getElementById('chromaControls');
-            
-            // Remover clase active
-            buttons.forEach(btn => btn.classList.remove('active'));
-            
-            if (mode === 'original') {
-                // Modo original: mostrar video directo
-                chromaKeyActive = false;
-                if (animationFrame) cancelAnimationFrame(animationFrame);
-                
-                canvas.style.display = 'none';
+
+            // Intentar inicializar chroma key
+            if (!ctx && !initChromaKey()) {
+                // Fallback: usar video original si canvas falla
+                addLog("Canvas no disponible, usando video original", 'info');
                 displayVideo.style.display = 'block';
+                const remoteVideo = document.getElementById('remoteVideo');
                 displayVideo.srcObject = remoteVideo.srcObject;
-                displayVideo.className = ''; // Sin clases de filtro
-                chromaControls.style.display = 'none';
-                
-                document.querySelector('[onclick="toggleVideoMode(\'original\')"]').classList.add('active');
-                addLog("Modo: Video original del avatar (sin filtros)", 'info');
-                
-            } else if (mode === 'chromakey') {
-                // Intentar inicializar chroma key
-                if (!ctx && !initChromaKey()) {
-                    // Fallback: usar filtros CSS si canvas falla
-                    addLog("Fallback: Usando filtros CSS", 'info');
-                    displayVideo.style.display = 'block';
-                    displayVideo.srcObject = remoteVideo.srcObject;
-                    displayVideo.className = ''; // Sin clases de filtro
-                    chromaControls.style.display = 'none';
-                    
-                    document.querySelector('[onclick="toggleVideoMode(\'chromakey\')"]').classList.add('active');
-                    return;
-                }
-                
-                // Modo chroma key: mostrar canvas procesado
-                chromaKeyActive = true;
-                
-                displayVideo.style.display = 'none';  
-                canvas.style.display = 'block';
-                chromaControls.style.display = 'block';
-                
-                // Iniciar procesamiento
-                processChromaKey();
-                
-                document.querySelector('[onclick="toggleVideoMode(\'chromakey\')"]').classList.add('active');
-                addLog("✅ Modo: Chroma key selectivo activado", 'success');
+                return;
             }
+
+            // Activar modo chroma key
+            chromaKeyActive = true;
+            displayVideo.style.display = 'none';
+            canvas.style.display = 'block';
+
+            // Iniciar procesamiento
+            processChromaKey();
+            addLog("✅ Chroma key activado automáticamente", 'success');
         }
 
         // Manejar Enter en el textarea

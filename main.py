@@ -98,7 +98,7 @@ active_sessions: Dict[str, dict] = {}
 # Modelos Pydantic
 class SessionConfig(BaseModel):
     quality: str = Field(default_factory=lambda: os.getenv("SESSION_QUALITY", "medium"))
-    avatar_id: str = Field(default_factory=lambda: os.getenv("AVATAR_ID", "Marianne_ProfessionalLook2_public"))
+    avatar_id: str = Field(default_factory=lambda: os.getenv("AVATAR_ID", "bd68b656d990490c9bae155358b18367"))
     voice_id: str = Field(default_factory=lambda: os.getenv("VOICE_ID", "b03cee81247e42d391cecc6b60f0f042"))
     video_encoding: str = Field(default_factory=lambda: os.getenv("VIDEO_ENCODING", "H264"))
 
