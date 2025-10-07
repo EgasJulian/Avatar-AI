@@ -5,6 +5,6 @@ requests
 pydantic
 python-multipart
 aiofiles
-deepgram-sdk
+deepgram-sdk<5.0.0
 openai
 python-dotenv

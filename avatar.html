@@ -154,7 +154,7 @@
 
         .video-container {
             background: linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a1a2a 100%);
-            border: 2px solid rgba(255, 0, 127, 0.4);
+            border: 3px solid transparent;
             border-radius: 22px;
             width: 100%;
             height: 65vh;
@@ -165,6 +165,15 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
+            background-image:
+                linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a1a2a 100%),
+                linear-gradient(135deg,
+                    rgba(255, 0, 127, 0.7) 0%,
+                    rgba(0, 212, 255, 0.5) 50%,
+                    rgba(255, 0, 127, 0.7) 100%
+                );
+            background-origin: padding-box, border-box;
+            background-clip: padding-box, border-box;
             box-shadow:
                 0 12px 48px rgba(0, 0, 0, 0.6),
                 0 0 40px rgba(255, 0, 127, 0.3),
@@ -173,13 +182,63 @@
         }
 
         .video-container:hover {
-            border-color: rgba(255, 0, 127, 0.6);
+            background-image:
+                linear-gradient(135deg, #0a0a0a 0%, #1a0a1a 50%, #0a1a2a 100%),
+                linear-gradient(135deg,
+                    rgba(255, 0, 127, 0.9) 0%,
+                    rgba(0, 212, 255, 0.7) 50%,
+                    rgba(255, 0, 127, 0.9) 100%
+                );
             box-shadow:
                 0 16px 64px rgba(0, 0, 0, 0.7),
                 0 0 60px rgba(255, 0, 127, 0.4),
                 0 0 0 1px rgba(0, 212, 255, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
+        }
+
+        /* Vignette overlay casi imperceptible */
+        .video-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                ellipse at center,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0) 60%,
+                rgba(10, 5, 15, 0.05) 75%,
+                rgba(15, 10, 25, 0.1) 88%,
+                rgba(10, 10, 26, 0.2) 96%,
+                rgba(8, 8, 20, 0.3) 100%
+            );
+            pointer-events: none;
+            z-index: 5;
+            border-radius: 18px;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Vignette con toques de color de marca en las esquinas */
+        .video-vignette::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                circle at top left,
+                rgba(255, 0, 127, 0.08) 0%,
+                transparent 30%
+            ),
+            radial-gradient(
+                circle at bottom right,
+                rgba(0, 212, 255, 0.08) 0%,
+                transparent 30%
+            );
+            border-radius: 18px;
+            opacity: 0.5;
         }
 
         video {
@@ -783,16 +842,10 @@
             color: #e2e8f0;
             border: 1px solid rgba(0, 212, 255, 0.2);
             border-radius: 14px;
-            padding: 12px;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 212, 255, 0.1);
-        }
-
-        .suggested-questions-section h3 {
-            color: white;
-            margin-bottom: 8px;
-            font-size: 1em;
-            font-weight: 600;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .questions-grid {
@@ -845,6 +898,69 @@
         .question-text {
             flex: 1;
             word-wrap: break-word;
+        }
+
+        /* Estilos para header y colapso de preguntas sugeridas */
+        .suggested-questions-header {
+            padding: 12px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            transition: background 0.2s ease;
+        }
+
+        .suggested-questions-header:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .suggested-questions-title {
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+        }
+
+        .suggestion-collapse-icon {
+            transition: transform 0.3s ease;
+            font-size: 1.2em;
+        }
+
+        .suggested-collapsed .suggestion-collapse-icon {
+            transform: rotate(-90deg);
+        }
+
+        .suggested-questions-content {
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+
+        .suggested-collapsed .suggested-questions-content {
+            max-height: 0;
+            padding: 0 12px;
+            overflow: hidden;
+        }
+
+        .suggested-questions-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .suggested-questions-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .suggested-questions-content::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.5);
+            border-radius: 3px;
         }
 
         /* Estilos para botón flotante de audio */
@@ -1242,6 +1358,9 @@
                             Transcripción aparecerá aquí...
                         </div>
                     </div>
+
+                    <!-- Vignette overlay para integración visual -->
+                    <div class="video-vignette"></div>
                 </div>
 
                 <div class="conversation-section" id="conversationSection">
@@ -1273,6 +1392,30 @@
                         </svg>
                         Enviar a AlicIA
                     </button>
+
+                    <!-- Preguntas Sugeridas -->
+                    <div class="suggested-questions-section suggested-collapsed" id="suggestedQuestionsSection" style="margin-top: 12px;">
+                        <div class="suggested-questions-header" onclick="toggleSuggestedQuestionsCollapse()">
+                            <h3 class="suggested-questions-title">💡 Preguntas Sugeridas</h3>
+                            <span class="suggestion-collapse-icon">▼</span>
+                        </div>
+                        <div class="suggested-questions-content">
+                            <div class="questions-grid">
+                                <button class="question-btn" onclick="sendPredefinedQuestion('¿Cuál es el propósito del Centro de excelencia de IA?')" disabled>
+                                    <span class="question-icon">🎯</span>
+                                    <span class="question-text">¿Cuál es el propósito del Centro de excelencia de IA?</span>
+                                </button>
+                                <button class="question-btn" onclick="sendPredefinedQuestion('¿Cuales son los actores que participan en la iniciativa del Centro del Excelencia?')" disabled>
+                                    <span class="question-icon">👥</span>
+                                    <span class="question-text">¿Cuales son los actores que participan en la iniciativa del Centro del Excelencia?</span>
+                                </button>
+                                <button class="question-btn" onclick="sendPredefinedQuestion('¿Qué me recomiendas tener en cuenta para asegurar que una iniciativa IA se lleve a cabo con éxito?')" disabled>
+                                    <span class="question-icon">💡</span>
+                                    <span class="question-text">¿Qué me recomiendas tener en cuenta para asegurar que una iniciativa IA se lleve a cabo con éxito?</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -1609,11 +1752,11 @@
                         remoteVideo.play().catch(e => {
                             addLog("Reproducción automática bloqueada. Haz clic en el video para activar el audio.", 'info');
                         });
-                        
-                        // Activar chroma key por defecto
+
+                        // Mostrar video original sin chroma key (chroma key no funciona para este avatar)
                         setTimeout(() => {
-                            activateChromaKey();
-                        }, 1500);
+                            showOriginalVideo();
+                        }, 500);
                     }
                     
                     if (track.kind === LivekitClient.Track.Kind.Audio) {
@@ -1940,7 +2083,7 @@
         let frameCount = 0;
         let lastTime = performance.now();
         let fps = 0;
-        
+
         // Función optimizada de chroma key que procesa cada frame
         function processChromaKey() {
             if (!canvas || !ctx || !chromaKeyActive) return;
@@ -1983,20 +2126,20 @@
                     const r = data[i];
                     const g = data[i + 1];
                     const b = data[i + 2];
-                    
+
                     // Algoritmo de detección de verde mejorado
                     const greenDominance = g - Math.max(r, b);
                     const isChromaKey = greenDominance > tolerance && g > 80;
-                    
+
                     if (isChromaKey) {
                         // Reemplazar con fondo elegante (gradiente suave)
                         const pixelIndex = i / 4;
                         const y = Math.floor(pixelIndex / canvas.width);
                         const x = pixelIndex % canvas.width;
-                        
+
                         // Gradiente diagonal
                         const gradientFactor = (y + x * 0.3) / (canvas.height + canvas.width * 0.3);
-                        
+
                         data[i] = Math.floor(20 + gradientFactor * 40);     // R (más rosa)
                         data[i + 1] = Math.floor(5 + gradientFactor * 15);  // G (menos verde)
                         data[i + 2] = Math.floor(30 + gradientFactor * 50); // B (cyan/azul)
@@ -2083,6 +2226,35 @@
             // Iniciar procesamiento
             processChromaKey();
             addLog("✅ Chroma key activado automáticamente", 'success');
+        }
+
+        // Mostrar video original sin chroma key (para avatar con fondo gris/beige)
+        function showOriginalVideo() {
+            const displayVideo = document.getElementById('displayVideo');
+            const remoteVideo = document.getElementById('remoteVideo');
+            const canvas = document.getElementById('videoCanvas');
+
+            // Desactivar procesamiento de chroma key si estaba activo
+            chromaKeyActive = false;
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+
+            // Ocultar canvas
+            canvas.style.display = 'none';
+
+            // Mostrar video original con vignette overlay
+            displayVideo.srcObject = remoteVideo.srcObject;
+            displayVideo.style.display = 'block';
+            displayVideo.muted = false;
+
+            // Asegurar reproducción
+            displayVideo.play().catch(e => {
+                addLog("Error reproduciendo video: " + e.message, 'info');
+            });
+
+            addLog("✅ Video original activado con vignette elegante", 'success');
         }
 
         // Manejar Enter en el textarea
@@ -2313,6 +2485,12 @@
         function toggleConversationCollapse() {
             const section = document.getElementById('conversationSection');
             section.classList.toggle('conversation-collapsed');
+        }
+
+        // Función para colapsar/expandir preguntas sugeridas
+        function toggleSuggestedQuestionsCollapse() {
+            const section = document.getElementById('suggestedQuestionsSection');
+            section.classList.toggle('suggested-collapsed');
         }
 
         // Limpiar al cerrar la ventana
