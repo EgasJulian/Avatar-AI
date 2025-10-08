@@ -376,13 +376,22 @@ async def send_session_task(session_id: str, task: TaskRequest):
 
 @app.delete("/api/sessions/{session_id}")
 async def close_heygen_session(session_id: str):
-    """Cierra una sesión activa en HeyGen."""
-    if session_id not in active_sessions:
-        raise HTTPException(status_code=404, detail="Session not found")
-    
-    await session_manager.close_session(session_id)
-    del active_sessions[session_id]
-    logger.info(f"[TÉCNICO] Sesión cerrada y eliminada: {session_id}")
+    """Cierra una sesión activa en HeyGen. Idempotente - no falla si la sesión ya fue cerrada."""
+    # Verificar si la sesión existe
+    if session_id in active_sessions:
+        # Intentar cerrar en HeyGen
+        try:
+            await session_manager.close_session(session_id)
+            logger.info(f"[TÉCNICO] Sesión cerrada en HeyGen: {session_id}")
+        except Exception as e:
+            logger.warning(f"[TÉCNICO] Error cerrando sesión en HeyGen (puede ya estar cerrada): {e}")
+
+        # Eliminar de sesiones activas
+        del active_sessions[session_id]
+        logger.info(f"[TÉCNICO] Sesión eliminada de active_sessions: {session_id}")
+    else:
+        logger.info(f"[TÉCNICO] Sesión {session_id} ya fue cerrada previamente (idempotente)")
+
     return {"status": "closed", "session_id": session_id}
 
 @app.post("/api/stt/transcribe", response_model=STTResponse)
@@ -569,11 +578,17 @@ async def websocket_endpoint(websocket: WebSocket, session_id: str):
                             }))
                 
                 elif message.get("type") == "close":
-                    # Cerrar sesión
-                    await session_manager.close_session(session_id)
+                    # Cerrar sesión (fallback - el método principal es el endpoint DELETE)
                     if session_id in active_sessions:
+                        try:
+                            await session_manager.close_session(session_id)
+                            logger.info(f"[TÉCNICO] Sesión cerrada en HeyGen desde WebSocket: {session_id}")
+                        except Exception as e:
+                            logger.warning(f"[TÉCNICO] Error cerrando sesión en HeyGen desde WebSocket: {e}")
                         del active_sessions[session_id]
-                    logger.info(f"[TÉCNICO] Sesión cerrada desde WebSocket: {session_id}")
+                        logger.info(f"[TÉCNICO] Sesión eliminada de active_sessions desde WebSocket: {session_id}")
+                    else:
+                        logger.info(f"[TÉCNICO] Sesión {session_id} ya fue cerrada (WebSocket)")
                     break
                     
             except WebSocketDisconnect:

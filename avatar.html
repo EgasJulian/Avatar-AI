@@ -1779,7 +1779,11 @@
                 
                 room.on(LivekitClient.RoomEvent.Disconnected, () => {
                     addLog("Conexión de video cerrada", 'info');
-                    updateUI('session_created');
+                    // Solo actualizar UI si no es un cierre intencional
+                    // (currentSessionId será null si cleanup() ya se ejecutó)
+                    if (currentSessionId !== null) {
+                        updateUI('session_created');
+                    }
                 });
                 
                 // Conectar al room
@@ -1984,21 +1988,20 @@
         // Cerrar sesión
         async function closeSession() {
             if (!currentSessionId) return;
-            
+
             try {
                 addLog('Cerrando sesión...', 'info');
 
-                // Notificar al servidor que vamos a cerrar
-                if (ws && ws.readyState === WebSocket.OPEN) {
-                    ws.send(JSON.stringify({ type: 'close' }));
-                }
-
                 // Llamar al endpoint de cierre en el backend
-                await fetch(`${API_BASE_URL}/api/sessions/${currentSessionId}`, {
+                const response = await fetch(`${API_BASE_URL}/api/sessions/${currentSessionId}`, {
                     method: 'DELETE'
                 });
-                
-                addLog('Sesión cerrada en el backend', 'success');
+
+                if (response.ok) {
+                    addLog('Sesión cerrada en el backend', 'success');
+                } else {
+                    addLog(`Advertencia: Respuesta del servidor al cerrar: ${response.status}`, 'info');
+                }
 
             } catch (error) {
                 addLog(`Error al cerrar sesión: ${error.message}`, 'error');
@@ -2010,6 +2013,9 @@
 
         // Limpiar recursos
         function cleanup() {
+            // Resetear estado PRIMERO para que event handlers sepan que es un cierre intencional
+            currentSessionId = null;
+
             // Detener procesamiento de chroma key
             chromaKeyActive = false;
             if (animationFrame) {
@@ -2038,43 +2044,40 @@
             const remoteVideo = document.getElementById('remoteVideo');
             const displayVideo = document.getElementById('displayVideo');
             const canvas = document.getElementById('videoCanvas');
-            
+
             // Pausar y limpiar streams de video
             if (remoteVideo.srcObject) {
                 const tracks = remoteVideo.srcObject.getTracks();
                 tracks.forEach(track => track.stop());
                 remoteVideo.srcObject = null;
             }
-            
+
             if (displayVideo.srcObject) {
                 const tracks = displayVideo.srcObject.getTracks();
                 tracks.forEach(track => track.stop());
                 displayVideo.srcObject = null;
             }
-            
+
             // Pausar videos para asegurar que no muestren el último frame
             remoteVideo.pause();
             displayVideo.pause();
-            
+
             // Limpiar canvas
             if (canvas && ctx) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
-            
+
             // Ocultar todos los elementos de video y mostrar placeholder
             remoteVideo.style.display = 'none';
             displayVideo.style.display = 'none';
             canvas.style.display = 'none';
             document.getElementById('videoPlaceholder').style.display = 'block';
 
-            // Resetear estado
-            currentSessionId = null;
-
             // Resetear estado del botón
             resetButtonState();
 
             updateUI('idle');
-            
+
             addLog('✅ Recursos limpiados correctamente', 'success');
         }
 
