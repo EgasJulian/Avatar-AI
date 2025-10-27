@@ -45,9 +45,8 @@ cover/
 
 
 
-# Flask stuff:
-instance/
-.webassets-cache
+# claude stuff
+.claude/
 
 # Scrapy stuff:
 .scrapy
