@@ -171,7 +171,7 @@ class HeyGenSessionManager:
         payload = {
             "quality": config.quality,
             "avatar_id": config.avatar_id,
-            "voice": {"voice_id": config.voice_id, "rate": 1.1},
+            "voice": {"voice_id": config.voice_id, "rate": 1.0},
             "version": config.version,
             "knowledge_base_id": config.knowledge_base_id, #adding context
             "video_encoding": config.video_encoding
