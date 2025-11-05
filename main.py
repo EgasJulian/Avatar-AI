@@ -104,6 +104,8 @@ class SessionConfig(BaseModel):
 
     version: str = Field(default_factory=lambda: os.getenv("SESSION_VERSION", "v2"))
     knowledge_base_id: str = Field(default_factory=lambda: os.getenv("KNOWLEDGE_BASE_ID", "197b84d8f4534ba68b0408bdaac78947"))
+    disable_idle_timeout: bool = Field(default_factory=lambda: os.getenv("DISABLE_IDLE_TIMEOUT", "False").lower() == "true")
+    activity_idle_timeout: int = Field(default_factory=lambda: int(os.getenv("ACTIVITY_IDLE_TIMEOUT", "360")))
 
 class TaskRequest(BaseModel):
     text: str
@@ -174,7 +176,9 @@ class HeyGenSessionManager:
             "voice": {"voice_id": config.voice_id, "rate": 1.0},
             "version": config.version,
             "knowledge_base_id": config.knowledge_base_id, #adding context
-            "video_encoding": config.video_encoding
+            "video_encoding": config.video_encoding,
+            "disable_idle_timeout": config.disable_idle_timeout,
+            "activity_idle_timeout": config.activity_idle_timeout
         }
         try:
             response = requests.post(url, json=payload, headers=auth_headers)
